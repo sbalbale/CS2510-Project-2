@@ -44,7 +44,7 @@
 
 ## :dart: About ##
 
-This is my coursework for Fundamentals of Computer Science 2 (CS2510) at Northeastern University.
+Project 2 for CS 2510 at Northeastern London
 
 ## :rocket: Technologies ##
 
