@@ -7,16 +7,30 @@ import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 
+/**
+ * The Image class represents an image as a graph structure where each node (pixel) keeps track of only its left and right neighbors.
+ * The image stores a list of the first column of pixels.
+ */
 public class Image {
-//    create a constructor that takes a file path and reads the image to graph structure
-//    where a node keeps track of only its left and right neighbors and our image stores a list of the first column of pixels.
-//    information should be kept in a pixel class.
-
+    /**
+     * The file path of the image.
+     */
     public String filePath = "";
 
-
+    /**
+     * A list of the first column of pixels in the image.
+     * Each pixel in this list is the start of a row in the image.
+     */
     private ArrayList<Pixel> firstColumn = new ArrayList<>();
 
+    /**
+     * Constructs a new Image from the specified file path.
+     * The image is read into a graph structure where each node (pixel) keeps track of only its left and right neighbors.
+     * The image stores a list of the first column of pixels.
+     *
+     * @param filePath The path of the image file.
+     * @throws IOException If an error occurs while reading the image file.
+     */
     public Image(String filePath) throws IOException {
         File input = new File(filePath);
         BufferedImage img = ImageIO.read(input);
@@ -44,6 +58,12 @@ public class Image {
         }
     }
 
+    /**
+     * This method prints the color of each pixel in the image.
+     * It iterates over the first column of pixels and for each pixel,
+     * it traverses to the right, printing the color of each pixel until
+     * it reaches a null pixel (indicating the end of the row).
+     */
     public void printImage() {
         for (Pixel pixel : firstColumn) {
             Pixel chaser = pixel;
