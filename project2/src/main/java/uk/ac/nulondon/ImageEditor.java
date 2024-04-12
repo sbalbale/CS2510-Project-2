@@ -1,4 +1,4 @@
 package uk.ac.nulondon;
 
-public class Main2 {
+public class ImageEditor {
 }

@@ -1,38 +1,42 @@
 package uk.ac.nulondon;
 
+import java.awt.*;
+
 public class Pixel {
-    private int red;
-    private int green;
-    private int blue;
+    private Color color = null;
+    private Pixel left = null;
+    private Pixel right = null;
 
-    public Pixel(int red, int green, int blue) {
-        this.red = red;
-        this.green = green;
-        this.blue = blue;
+
+
+    public Pixel(Color rgb) {
+//      where a pixel keeps track of only its left and right neighbors
+//      and our image stores a list of the first column of pixels.
+        this.color = rgb;
+        this.left = null;
+        this.right = null;
     }
 
-    public int getRed() {
-        return red;
+    public Color getColor() {
+        return color;
+    }
+    public Pixel getLeft() {
+        return left;
+    }
+    public Pixel getRight() {
+        return right;
+    }
+    public void setLeft(Pixel left) {
+        this.left = left;
+    }
+    public void setRight(Pixel right) {
+        this.right = right;
     }
 
-    public int getGreen() {
-        return green;
-    }
-
-    public int getBlue() {
-        return blue;
-    }
-
-    public void setRed(int red) {
-        this.red = red;
-    }
-
-    public void setGreen(int green) {
-        this.green = green;
-    }
-
-    public void setBlue(int blue) {
-        this.blue = blue;
+    public String toString() {
+        return "Pixel{" +
+                "color=" + color +
+                '}';
     }
 
 }
