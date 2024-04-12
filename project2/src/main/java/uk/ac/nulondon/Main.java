@@ -1,5 +1,7 @@
 package uk.ac.nulondon;
 
+import java.util.Arrays;
+
 public class Main {
     /**
      * The main method of the application.
@@ -14,6 +16,8 @@ public class Main {
             Image image = new Image("src/main/resources/8x8 Images/beach.png");
             image.calculateEnergies();
             image.printImage();
+            int[] seam = image.findBluestSeam();
+            System.out.println("Bluest seam: " + Arrays.toString(seam));
             image.exportImage("newImg");
         } catch (Exception e) {
             e.printStackTrace();

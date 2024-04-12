@@ -103,12 +103,8 @@ public class Image {
         for (Pixel pixel : firstColumn) {
             Pixel chaser = pixel;
             while (chaser != null) {
-                System.out.print("{ ");
-//                System.out.print("Color: "+ chaser.getColor() + " ");
-//                System.out.print("Coordinates: (" + chaser.getX() + ", " + chaser.getY() + ") ");
-                System.out.print("Brightness: " + chaser.getBrightness() + " ");
-                System.out.print("Energy: " + chaser.getEnergy() + " ");
-                System.out.print("} ");
+                System.out.print(chaser.toString() + " ");
+//                System.out.print("{ Brightness: " + chaser.getBrightness() + " Energy: " + chaser.getEnergy() + " } ");
                 chaser = chaser.getRight();
             }
             System.out.println();
@@ -143,14 +139,15 @@ public class Image {
      * @param pixel The Pixel whose energy is to be calculated.
      */
     public void energy(Pixel pixel) {
-        int brA = 0;
-        int brB = 0;
-        int brC = 0;
-        int brD = 0;
-        int brF = 0;
-        int brG = 0;
-        int brH = 0;
-        int brI = 0;
+        int brE = br(pixel);
+        int brA = brE;
+        int brB = brE;
+        int brC = brE;
+        int brD = brE;
+        int brF = brE;
+        int brG = brE;
+        int brH = brE;
+        int brI = brE;
         int x = pixel.getX();
         int y = pixel.getY();
         if (y != 0) {
@@ -216,6 +213,61 @@ public class Image {
             }
         }
     }
+
+
+//    function findBluestSeam() finds the seam with the most amount of blue pixels
+//    it checks finds the blue values of each pixel in the first column and then finds the pixel with the highest blue value
+//    it then moves to the next row and finds the pixel who when added to the previous pixel either above, up and to the left or up and to the right has the highest blue value
+//    it continues this process until it reaches the last row and then traces back to find the seam with the most blue pixels
+//    it saves the bluest value of the pixel in the pixel object and the seams path in a list of integers.
+//    it returns an array of integers representing the indices of the pixels in the seam
+    public int[] findBluestSeam(){
+        Pixel bluestPixel = null;
+        int maxBlue = 0;
+        for(Pixel pixel : firstColumn){
+            if(pixel.getColor().getBlue() > maxBlue){
+                maxBlue = pixel.getColor().getBlue();
+                bluestPixel = pixel;
+            }
+        }
+        Pixel chaser = bluestPixel;
+        int[] seam = new int[8];
+        seam[0] = bluestPixel.getX();
+        for(int i = 1; i < 8; i++){
+            int x = chaser.getX();
+            int y = chaser.getY();
+            int bluest = 0;
+            Pixel next = null;
+            if(y != 0){
+                Pixel a = firstColumn.get(y - 1);
+                while(x != a.getX()){
+                    a = a.getRight();
+                }
+                if(a.getColor().getBlue() > bluest){
+                    bluest = a.getColor().getBlue();
+                    next = a;
+                }
+            }
+            Pixel b = chaser.getLeft();
+            if(b != null && b.getColor().getBlue() > bluest){
+                bluest = b.getColor().getBlue();
+                next = b;
+            }
+            Pixel c = chaser.getRight();
+            if(c != null && c.getColor().getBlue() > bluest){
+                bluest = c.getColor().getBlue();
+                next = c;
+            }
+            seam[i] = next.getX();
+            chaser = next;
+        }
+        return seam;
+
+    }
+
+
+
+
 
 
 }
