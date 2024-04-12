@@ -12,7 +12,9 @@ public class Main {
     public static void main(String[] args) {
         try {
             Image image = new Image("src/main/resources/8x8 Images/beach.png");
+            image.calculateEnergies();
             image.printImage();
+            image.exportImage("newImg");
         } catch (Exception e) {
             e.printStackTrace();
         }

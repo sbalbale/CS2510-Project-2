@@ -23,15 +23,54 @@ public class Pixel {
     private Pixel right = null;
 
     /**
+     * The energy of the Pixel.
+     */
+    private int energy = -1;
+
+    /**
+     * The brightness of the Pixel.
+     */
+    private int brightness = -1;
+
+    /**
+     * The x-coordinate of the Pixel.
+     */
+    private int x;
+
+    /**
+     * The y-coordinate of the Pixel.
+     */
+    private int y;
+
+    /**
      * Constructs a new Pixel with the specified color.
      * The left and right neighbors are initially set to null.
      *
      * @param rgb The color of the Pixel.
      */
-    public Pixel(Color rgb) {
+    public Pixel(int x, int y, Color rgb) {
+        this.x = x;
+        this.y = y;
         this.color = rgb;
         this.left = null;
         this.right = null;
+    }
+
+    /**
+     * This method returns the x-coordinate of the Pixel.
+     *
+     * @return The x-coordinate of the Pixel.
+     */
+    public int getX() {
+        return x;
+    }
+    /**
+     * This method returns the y-coordinate of the Pixel.
+     *
+     * @return The y-coordinate of the Pixel.
+     */
+    public int getY() {
+        return y;
     }
 
     /**
@@ -91,6 +130,41 @@ public class Pixel {
                 '}';
     }
 
+    /**
+     * Sets the brightness of this Pixel.
+     *
+     * @param brightness The brightness value to set.
+     */
+    public void setBrightness(int brightness) {
+        this.brightness = brightness;
+    }
+
+    /**
+     * Returns the brightness of this Pixel.
+     *
+     * @return The brightness of this Pixel.
+     */
+    public int getBrightness() {
+        return brightness;
+    }
+
+    /**
+     * Sets the energy of this Pixel.
+     *
+     * @param energy The energy value to set.
+     */
+    public void setEnergy(int energy) {
+        this.energy = energy;
+    }
+
+    /**
+     * Returns the energy of this Pixel.
+     *
+     * @return The energy of this Pixel.
+     */
+    public int getEnergy() {
+        return energy;
+    }
 
 
 }
