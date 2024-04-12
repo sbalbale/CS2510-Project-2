@@ -74,6 +74,15 @@ public class Pixel {
     }
 
     /**
+     * This method sets the color of the Pixel.
+     *
+     * @param color The color to set.
+     */
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    /**
      * This method returns the color of the Pixel.
      *
      * @return The color of the Pixel.
