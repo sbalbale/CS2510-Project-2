@@ -10,7 +10,8 @@ import java.util.Arrays;
 import java.util.Collections;
 
 /**
- * The Image class represents an image as a graph structure where each node (pixel) keeps track of only its left and right neighbors.
+ * The Image class represents an image as a graph structure where each node
+ * (pixel) keeps track of only its left and right neighbors.
  * The image stores a list of the first column of pixels.
  */
 public class Image {
@@ -38,7 +39,8 @@ public class Image {
 
     /**
      * Constructs a new Image from the specified file path.
-     * The image is read into a graph structure where each node (pixel) keeps track of only its left and right neighbors.
+     * The image is read into a graph structure where each node (pixel) keeps track
+     * of only its left and right neighbors.
      * The image stores a list of the first column of pixels.
      *
      * @param filePath The path of the image file.
@@ -69,10 +71,16 @@ public class Image {
 
     /**
      * Exports the image represented by this Image object to a file.
-     * The method takes a string parameter outputFilePath which is the path where the output image will be saved.
-     * It creates a new BufferedImage object with a size of 8x8 pixels and a type of BufferedImage.TYPE_INT_RGB.
-     * It then iterates over each row and column of the image, retrieves the color of the pixel and sets the RGB value of the corresponding pixel in the BufferedImage object.
-     * Finally, it writes the BufferedImage object to the output file. If an IOException occurs during this process, the exception is caught and its stack trace is printed.
+     * The method takes a string parameter outputFilePath which is the path where
+     * the output image will be saved.
+     * It creates a new BufferedImage object with a size of 8x8 pixels and a type of
+     * BufferedImage.TYPE_INT_RGB.
+     * It then iterates over each row and column of the image, retrieves the color
+     * of the pixel and sets the RGB value of the corresponding pixel in the
+     * BufferedImage object.
+     * Finally, it writes the BufferedImage object to the output file. If an
+     * IOException occurs during this process, the exception is caught and its stack
+     * trace is printed.
      *
      * @param outputFilePath The path where the output image will be saved.
      */
@@ -87,7 +95,7 @@ public class Image {
                     pixel = pixel.getRight();
                 }
             }
-            File output = new File("Output/" + outputFilePath + ".png");
+            File output = new File("project2\\Output\\" + outputFilePath + ".png");
             ImageIO.write(newImage, "png", output);
         } catch (IOException e) {
             e.printStackTrace();
@@ -104,8 +112,9 @@ public class Image {
         for (Pixel pixel : firstColumn) {
             while (pixel != null) {
                 System.out.print(pixel.toString() + " ");
-//                System.out.print("{ Brightness: " + pixel.getBrightness() + " Energy: " + pixel.getEnergy() + " } ");
-//                System.out.print("{ Blueness: " + pixel.getBlueness() + " } ");
+                // System.out.print("{ Brightness: " + pixel.getBrightness() + " Energy: " +
+                // pixel.getEnergy() + " } ");
+                // System.out.print("{ Blueness: " + pixel.getBlueness() + " } ");
                 pixel = pixel.getRight();
             }
             System.out.println();
@@ -114,7 +123,8 @@ public class Image {
 
     /**
      * Calculates the brightness of a given Pixel.
-     * The brightness is calculated as the average of the red, green, and blue color components.
+     * The brightness is calculated as the average of the red, green, and blue color
+     * components.
      * The calculated brightness is then set as the brightness of the Pixel.
      *
      * @param pixel The Pixel whose brightness is to be calculated.
@@ -125,7 +135,7 @@ public class Image {
         int g = pixel.getColor().getGreen();
         int b = pixel.getColor().getBlue();
         int brightness = (r + g + b) / 3;
-//        System.out.println("Brightness: " + brightness);
+        // System.out.println("Brightness: " + brightness);
         if (brightness != pixel.getBrightness()) {
             pixel.setBrightness(brightness);
         }
@@ -134,7 +144,8 @@ public class Image {
 
     /**
      * Calculates the energy of a given Pixel.
-     * The energy is calculated based on the brightness of the Pixel and its neighbors.
+     * The energy is calculated based on the brightness of the Pixel and its
+     * neighbors.
      * The calculated energy is then set as the energy of the Pixel.
      *
      * @param pixel The Pixel whose energy is to be calculated.
@@ -193,9 +204,9 @@ public class Image {
         int horizEnergy = (brA + 2 * brD + brG) - (brC + 2 * brF + brI);
         int vertEnergy = (brA + 2 * brB + brC) - (brG + 2 * brH + brI);
         int energy = (int) Math.sqrt(Math.pow(horizEnergy, 2) + Math.pow(vertEnergy, 2));
-//        System.out.println("HorizEnergy: " + horizEnergy);
-//        System.out.println("VertEnergy: " + vertEnergy);
-//        System.out.println("Energy: " + energy);
+        // System.out.println("HorizEnergy: " + horizEnergy);
+        // System.out.println("VertEnergy: " + vertEnergy);
+        // System.out.println("Energy: " + energy);
         if (energy != pixel.getEnergy()) {
             pixel.setEnergy(energy);
         }
@@ -203,7 +214,8 @@ public class Image {
 
     /**
      * Calculates the energies of all Pixels in the Image.
-     * This method iterates over all Pixels in the Image and calls the energy method on each Pixel.
+     * This method iterates over all Pixels in the Image and calls the energy method
+     * on each Pixel.
      */
     public void calculateEnergies() {
         for (Pixel pixel : firstColumn) {
@@ -214,9 +226,116 @@ public class Image {
         }
     }
 
+    /**
+     * Finds the path from top to bottom with the maximum total blueness.
+     *
+     * This method uses dynamic programming to find the "bluest" seam in the image.
+     * The blueness of a seam is defined as the sum of the blueness of all pixels in
+     * the seam.
+     *
+     * @return an array representing the bluest seam. Each element is the
+     *         x-coordinate of the pixel in the seam for the corresponding
+     *         y-coordinate.
+     */
+    public int[] findBluestSeam() {
+        int height = firstColumn.size();
+        int[] seam = new int[height];
+        int[] previousValues = new int[height];
+        int[][] previousSeams = new int[height][height];
+
+        // Initialize the first row
+        Pixel pixel = firstColumn.get(0);
+        int i = 0;
+        while (pixel != null) {
+            previousValues[i] = pixel.getBlueness();
+            previousSeams[i][0] = i;
+            pixel = pixel.getRight();
+            i++;
+        }
+
+        // Process the remaining rows
+        for (int y = 1; y < height; y++) {
+            pixel = firstColumn.get(y);
+            int[] currentValues = new int[i];
+            int[][] currentSeams = new int[i][height];
+            int x = 0;
+            while (pixel != null) {
+                int left = x > 0 ? previousValues[x - 1] : -1;
+                int middle = previousValues[x];
+                int right = x < i - 1 ? previousValues[x + 1] : -1;
+                int max = Math.max(Math.max(left, middle), right);
+                currentValues[x] = pixel.getBlueness() + max;
+                if (max == left) {
+                    System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
+                } else if (max == middle) {
+                    System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
+                } else {
+                    System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
+                }
+                currentSeams[x][y] = x;
+                pixel = pixel.getRight();
+                x++;
+            }
+            previousValues = currentValues;
+            previousSeams = currentSeams;
+        }
+
+        // Find the bluest seam
+        int maxIndex = indexOfLargest(previousValues);
+        seam = previousSeams[maxIndex];
+        return seam;
+    }
+
+    /**
+     * UTILITY FUNCTIONS
+     * THESE FUNCTIONS ARE USED TO HELP IMPLEMENT AND BUG FIX THE MAIN FUNCTIONS
+     * 
+     * 
+     */
+
+    /**
+     * Returns the index of the largest value in the given array.
+     *
+     * This function iterates over the array, keeping track of the maximum value
+     * found so far and its index.
+     * If it finds a value that is larger than the current maximum, it updates the
+     * maximum and its index.
+     * After iterating over the entire array, it returns the index of the maximum
+     * value.
+     *
+     * @param array the array to search
+     * @return the index of the largest value in the array
+     */
+    public static int indexOfLargest(int[] array) {
+        int maxIndex = 0;
+        for (int i = 1; i < array.length; i++) {
+            if (array[i] > array[maxIndex]) {
+                maxIndex = i;
+            }
+        }
+        return maxIndex;
+    }
+
+    /**
+     * Returns the index of the smallest value in the given array.
+     *
+     * This function iterates over the array, keeping track of the minimum value
+     * found so far and its index.
+     * If it finds a value that is smaller than or equal to the current minimum, it
+     * updates the minimum and its index.
+     * After iterating over the entire array, it returns the index of the minimum
+     * value.
+     *
+     * If the array is empty, it returns -1.
+     *
+     * @param array the array to search
+     * @return the index of the smallest value in the array, or -1 if the array is
+     *         empty
+     */
     public static int indexOfSmallest(int[] array) {
         // add this
-        if (array.length == 0) return -1;
+        if (array.length == 0)
+            return -1;
         int index = 0;
         int min = array[index];
         for (int i = 1; i < array.length; i++) {
@@ -228,6 +347,18 @@ public class Image {
         return index;
     }
 
+    /**
+     * Prints the elements of the given array.
+     *
+     * This function iterates over the array and prints each element followed by a
+     * space.
+     * After printing all elements, it prints a newline.
+     *
+     * This function is useful for debugging, as it allows you to easily inspect the
+     * contents of an array.
+     *
+     * @param array the array to print
+     */
     public void printArray(int[] array) {
         for (int i = 0; i < array.length; i++) {
             System.out.print(array[i] + " ");
@@ -235,6 +366,18 @@ public class Image {
         System.out.println();
     }
 
+    /**
+     * Prints the elements of the given 2D array.
+     *
+     * This function iterates over the rows and columns of the array and prints each
+     * element followed by a space.
+     * After printing all elements in a row, it prints a newline.
+     *
+     * This function is useful for debugging, as it allows you to easily inspect the
+     * contents of a 2D array.
+     *
+     * @param array the 2D array to print
+     */
     public void printArray(int[][] array) {
         for (int i = 0; i < array.length; i++) {
             for (int j = 0; j < array[i].length; j++) {
@@ -242,76 +385,5 @@ public class Image {
             }
             System.out.println();
         }
-    }
-
-    //    function findBluestSeam() finds the seam with the most amount of blue pixels
-//    it checks finds the blue values of each pixel in the first column and then finds the pixel with the highest blue value
-//    it then moves to the next row and finds the pixel who when added to the previous pixel either above, up and to the left or up and to the right has the highest blue value
-//    it continues this process until it reaches the last row and then traces back to find the seam with the most blue pixels
-//    it saves the bluest value of the pixel in the pixel object and the seams path in a list of integers.
-//    it returns an array of integers representing the indices of the pixels in the seam
-    public int[] findBluestSeam() {
-        int[] seam = new int[height];
-        int[] previousValues = new int[width];
-        int[][] previousSeams = new int[width][height];
-        int[] currentValues = new int[width];
-        int[][] currentSeams = new int[width][height];
-
-        for (Pixel pixel : firstColumn) {
-            while (pixel != null) {
-                int maxBlue = 0;
-                if (pixel.getY() != 0) {
-                    Pixel b = firstColumn.get(pixel.getY() - 1);
-                    while (pixel.getX() != b.getX()) {
-                        b = b.getRight();
-                    }
-                    Pixel a = b.getLeft();
-                    Pixel c = b.getRight();
-                    int upMaxBlue = 0;
-                    if (a == null) {
-                        upMaxBlue = Math.max(b.getBlueness(), c.getBlueness());
-                        if (b.getBlueness() == Math.max(b.getBlueness(), c.getBlueness())) {
-                            currentSeams[pixel.getX()][pixel.getY()] = b.getX();
-                        } else {
-                            currentSeams[pixel.getX()][pixel.getY()] = c.getX();
-                        }
-                    } else if (c == null) {
-                        upMaxBlue = Math.max(a.getBlueness(), b.getBlueness());
-                        if (a.getBlueness() == Math.max(a.getBlueness(), b.getBlueness())) {
-                            currentSeams[pixel.getX()][pixel.getY()] = a.getX();
-                        } else {
-                            currentSeams[pixel.getX()][pixel.getY()] = b.getX();
-                        }
-                    } else {
-                        upMaxBlue = Math.max(a.getBlueness(), Math.max(b.getBlueness(), c.getBlueness()));
-                        if (a.getBlueness() == Math.max(a.getBlueness(), Math.max(b.getBlueness(), c.getBlueness()))) {
-                            currentSeams[pixel.getX()][pixel.getY()] = a.getX();
-                        } else if (b.getBlueness() == Math.max(a.getBlueness(), Math.max(b.getBlueness(), c.getBlueness()))) {
-                            currentSeams[pixel.getX()][pixel.getY()] = b.getX();
-                        } else {
-                            currentSeams[pixel.getX()][pixel.getY()] = c.getX();
-                        }
-                    }
-                    pixel.setBlueness(pixel.getBlueness() + upMaxBlue);
-                    if (maxBlue < pixel.getBlueness()) {
-                        currentValues[pixel.getX()] = pixel.getBlueness();
-                        currentSeams[pixel.getX()][pixel.getY()] = pixel.getX();
-                    }
-                } else {
-                    currentValues[pixel.getX()] = pixel.getBlueness();
-                    currentSeams[pixel.getX()][pixel.getY()] = pixel.getX();
-                }
-
-                pixel = pixel.getRight();
-                previousValues = currentValues;
-                previousSeams = currentSeams;
-
-            }
-
-        }
-
-        int minIndex = indexOfSmallest(previousValues);
-        seam = previousSeams[minIndex];
-        return seam;
     }
 }
