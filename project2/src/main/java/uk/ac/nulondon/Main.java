@@ -16,10 +16,15 @@ public class Main {
     public static void main(String[] args) {
         try {
             Image image = new Image("project2\\src\\main\\resources\\8x8 Images\\beach.png");
-            image.calculateEnergies();
             image.printImage();
-            int[] seam = image.findBluestSeam();
-            System.out.println("Bluest seam: " + Arrays.toString(seam));
+            image.imageCalculateEnergy();
+            image.imageCalculateBluenesses();
+            System.out.println();
+            image.printImage();
+            int[] bluestSeam = image.findBluestSeam();
+            System.out.println("Bluest seam: " + Arrays.toString(bluestSeam));
+            int[] lowestEnergySeam = image.findLowestEnergySeam();
+            System.out.println("Lowest energy seam: " + Arrays.toString(lowestEnergySeam));
             image.exportImage("newImg");
             image.printImage();
         } catch (Exception e) {

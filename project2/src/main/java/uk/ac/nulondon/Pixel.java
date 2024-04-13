@@ -57,7 +57,6 @@ public class Pixel {
         this.x = x;
         this.y = y;
         this.color = rgb;
-        this.blueness = rgb.getBlue();
         this.left = null;
         this.right = null;
 
@@ -71,6 +70,7 @@ public class Pixel {
     public int getX() {
         return x;
     }
+
     /**
      * This method returns the y-coordinate of the Pixel.
      *
@@ -142,13 +142,16 @@ public class Pixel {
      */
     public String toString() {
         return "Pixel{" +
-//                "loc=(" + x + "," + y + ")" +
-//                ", color=(R:" + color.getRed()  + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
-//                ", brightness=" + brightness +
-//                ", energy=" + energy +
-                ", blueness=" + blueness +
-//                ", left= " + (left != null ? "(" + left.getX() + "," + left.getY() + ")" : "null") +
-//                ", right= " + (right != null ? "(" + right.getX() + "," + right.getY() + ")" : "null") +
+        // "loc=(" + x + "," + y + ")" +
+        // ", color=(R:" + color.getRed() + ", G:" + color.getGreen() + ", B:" +
+        // color.getBlue() + ")" +
+        // ", brightness=" + brightness +
+                ", energy=" + energy +
+                // ", blueness=" + blueness +
+                // ", left= " + (left != null ? "(" + left.getX() + "," + left.getY() + ")" :
+                // "null") +
+                // ", right= " + (right != null ? "(" + right.getX() + "," + right.getY() + ")"
+                // : "null") +
                 '}';
     }
 
@@ -203,6 +206,5 @@ public class Pixel {
     public int getBlueness() {
         return blueness;
     }
-
 
 }

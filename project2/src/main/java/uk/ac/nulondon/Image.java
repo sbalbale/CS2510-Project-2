@@ -150,7 +150,7 @@ public class Image {
      *
      * @param pixel The Pixel whose energy is to be calculated.
      */
-    public void energy(Pixel pixel) {
+    public int calculateEnergy(Pixel pixel) {
         int brE = br(pixel);
         int brA = brE;
         int brB = brE;
@@ -207,9 +207,7 @@ public class Image {
         // System.out.println("HorizEnergy: " + horizEnergy);
         // System.out.println("VertEnergy: " + vertEnergy);
         // System.out.println("Energy: " + energy);
-        if (energy != pixel.getEnergy()) {
-            pixel.setEnergy(energy);
-        }
+        return energy;
     }
 
     /**
@@ -217,10 +215,45 @@ public class Image {
      * This method iterates over all Pixels in the Image and calls the energy method
      * on each Pixel.
      */
-    public void calculateEnergies() {
+    public void imageCalculateEnergy() {
         for (Pixel pixel : firstColumn) {
             while (pixel != null) {
-                energy(pixel);
+                int energy = calculateEnergy(pixel);
+                pixel.setEnergy(energy);
+                pixel = pixel.getRight();
+            }
+        }
+    }
+
+    /**
+     * Calculates the blueness of a given pixel.
+     *
+     * This method retrieves the blue component of the pixel's color and returns it
+     * as the pixel's blueness.
+     * The blueness is an integer between 0 (no blue) and 255 (maximum blue).
+     *
+     * @param pixel the pixel for which to calculate the blueness
+     * @return the blueness of the pixel
+     */
+    public int calculateBlueness(Pixel pixel) {
+        int blueness = pixel.getColor().getBlue();
+        return blueness;
+    }
+
+    /**
+     * Calculates and sets the blueness of all pixels in the image.
+     *
+     * This method iterates over the pixels in the first column of the image, and
+     * for each pixel, it calculates the blueness
+     * and sets it as the pixel's blueness. It then moves to the right and repeats
+     * the process for the next pixel, until it
+     * has processed all pixels in the image.
+     */
+    public void imageCalculateBluenesses() {
+        for (Pixel pixel : firstColumn) {
+            while (pixel != null) {
+                int blueness = calculateBlueness(pixel);
+                pixel.setBlueness(blueness);
                 pixel = pixel.getRight();
             }
         }
@@ -273,6 +306,7 @@ public class Image {
                     System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
                 }
                 currentSeams[x][y] = x;
+                pixel.setBlueness(currentValues[x]);
                 pixel = pixel.getRight();
                 x++;
             }
@@ -283,6 +317,73 @@ public class Image {
         // Find the bluest seam
         int maxIndex = indexOfLargest(previousValues);
         seam = previousSeams[maxIndex];
+        return seam;
+    }
+
+    /**
+     * Finds the path from top to bottom with the minimum total energy.
+     *
+     * This method uses dynamic programming to find the "lowest energy" seam in the
+     * image.
+     * The energy of a seam is defined as the sum of the energy of all pixels in the
+     * seam.
+     *
+     * @return an array representing the lowest energy seam. Each element is the
+     *         x-coordinate of the pixel in the seam for the corresponding
+     *         y-coordinate.
+     */
+    public int[] findLowestEnergySeam() {
+        int height = firstColumn.size();
+        int[] seam = new int[height];
+        int[] previousValues = new int[height];
+        int[][] previousSeams = new int[height][height];
+
+        // Initialize the first row
+        Pixel pixel = firstColumn.get(0);
+        int i = 0;
+        while (pixel != null) {
+            previousValues[i] = pixel.getEnergy();
+            previousSeams[i][0] = i;
+            pixel = pixel.getRight();
+            i++;
+        }
+
+        // Process the remaining rows
+        for (int y = 1; y < height; y++) {
+            pixel = firstColumn.get(y);
+            int[] currentValues = new int[i];
+            int[][] currentSeams = new int[i][height];
+            int x = 0;
+            while (pixel != null) {
+                int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
+                int middle = previousValues[x];
+                int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
+                int min = Math.min(Math.min(left, middle), right);
+                currentValues[x] = pixel.getEnergy() + min;
+
+                // Update the seam for the current pixel
+                if (min == left) {
+                    System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
+                } else if (min == middle) {
+                    System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
+                } else {
+                    System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
+                }
+                currentSeams[x][y] = x;
+                pixel.setEnergy(currentValues[x]);
+                pixel = pixel.getRight();
+                x++;
+            }
+
+            // Prepare for the next row
+            previousValues = currentValues;
+            previousSeams = currentSeams;
+        }
+
+        // Find the lowest energy seam
+        int minIndex = indexOfSmallest(previousValues);
+        seam = previousSeams[minIndex];
+
         return seam;
     }
 
