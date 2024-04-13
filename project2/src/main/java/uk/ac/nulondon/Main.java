@@ -19,6 +19,7 @@ public class Main {
             int[] seam = image.findBluestSeam();
             System.out.println("Bluest seam: " + Arrays.toString(seam));
             image.exportImage("newImg");
+            image.printImage();
         } catch (Exception e) {
             e.printStackTrace();
         }

@@ -57,8 +57,10 @@ public class Pixel {
         this.x = x;
         this.y = y;
         this.color = rgb;
+        this.blueness = rgb.getBlue();
         this.left = null;
         this.right = null;
+
     }
 
     /**
@@ -140,10 +142,13 @@ public class Pixel {
      */
     public String toString() {
         return "Pixel{" +
-                "loc=(" + x + "," + y + ")" +
-                ", color=(R:" + color.getRed()  + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
-                ", brightness=" + brightness +
-                ", energy=" + energy +
+//                "loc=(" + x + "," + y + ")" +
+//                ", color=(R:" + color.getRed()  + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
+//                ", brightness=" + brightness +
+//                ", energy=" + energy +
+                ", blueness=" + blueness +
+//                ", left= " + (left != null ? "(" + left.getX() + "," + left.getY() + ")" : "null") +
+//                ", right= " + (right != null ? "(" + right.getX() + "," + right.getY() + ")" : "null") +
                 '}';
     }
 
@@ -185,8 +190,6 @@ public class Pixel {
 
     /**
      * Sets the blueness of this Pixel.
-     *
-     * @param blueness The blueness value to set.
      */
     public void setBlueness(int blueness) {
         this.blueness = blueness;
