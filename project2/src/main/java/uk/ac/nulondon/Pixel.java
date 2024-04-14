@@ -13,6 +13,14 @@ public class Pixel {
     private Color color = null;
 
     /**
+     * This field stores the initial color of the pixel.
+     * It is set to null by default, meaning the pixel's initial color has not been set yet.
+     * Once the pixel's color is set for the first time, this field should be updated to store that color.
+     * This allows the pixel's original color to be remembered even if the pixel's color is later changed.
+     */
+    private Color initialColor = null;
+
+    /**
      * The left neighbor of the Pixel.
      */
     private Pixel left = null;
@@ -57,9 +65,18 @@ public class Pixel {
         this.x = x;
         this.y = y;
         this.color = rgb;
+        this.initialColor = rgb;
         this.left = null;
         this.right = null;
+    }
 
+    /**
+     * Returns the initial color of the pixel.
+     *
+     * @return the initial color of the pixel. If the pixel's initial color has not been set yet, this method returns null.
+     */
+    public Color getInitialColor() {
+        return initialColor;
     }
 
     /**

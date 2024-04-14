@@ -30,7 +30,9 @@ public class Main {
             image.highlightSeam(lowestEnergySeam, Color.RED);
             image.exportImage("highlightedSeam");
             image.removeSeam(lowestEnergySeam);
-            image.exportImage("newImg");
+            image.exportImage("seamRemoved");
+            image.insertSeam(image.getLastRemovedSeam());
+            image.exportImage("seamInserted");
             image.printImage();
         } catch (Exception e) {
             e.printStackTrace();

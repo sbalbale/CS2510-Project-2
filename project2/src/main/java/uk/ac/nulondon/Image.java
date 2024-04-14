@@ -20,6 +20,11 @@ public class Image {
      * The file path of the image.
      */
     public String filePath = "";
+
+    /**
+     * This field stores the output file path for the new image.
+     * By default, it is set to "newImg", meaning the new image will be saved as "newImg" in the project directory.
+     */
     public String outputFilePath = "newImg";
 
     /**
@@ -114,19 +119,18 @@ public class Image {
         }
     }
 
+    
     /**
-     * This method prints the color of each pixel in the image.
-     * It iterates over the first column of pixels and for each pixel,
-     * it traverses to the right, printing the color of each pixel until
-     * it reaches a null pixel (indicating the end of the row).
+     * Prints the image to the console.
+     * It iterates over each pixel in the first column of the image, and for each pixel, 
+     * it prints the pixel and all its right neighbors in the same row.
+     * Each pixel is printed using its toString method, followed by a space.
+     * After all pixels in a row have been printed, it prints a new line.
      */
     public void printImage() {
         for (Pixel pixel : firstColumn) {
             while (pixel != null) {
                 System.out.print(pixel.toString() + " ");
-                // System.out.print("{ Brightness: " + pixel.getBrightness() + " Energy: " +
-                // pixel.getEnergy() + " } ");
-                // System.out.print("{ Blueness: " + pixel.getBlueness() + " } ");
                 pixel = pixel.getRight();
             }
             System.out.println();
@@ -150,6 +154,12 @@ public class Image {
         return brightness;
     }
 
+    /**
+     * Calculates the brightness of each pixel in the image.
+     * It iterates over each pixel in the first column of the image, and for each pixel, 
+     * it calculates the brightness and sets the pixel's brightness to the calculated value.
+     * The brightness is calculated using the calculateBrightness method.
+     */
     public void imageCalculateBrightness() {
         for (Pixel pixel : firstColumn) {
             while (pixel != null) {
@@ -416,6 +426,70 @@ public class Image {
     }
 
     /**
+     * Inserts a given seam into the image.
+     *
+     * @param seam an ArrayList of Pixel objects representing the seam to be inserted.
+     */
+    public void insertSeam(ArrayList<Pixel> seam) {
+        for (int y = 0; y < seam.size(); y++) {
+            Pixel pixel = seam.get(y);
+            if (pixel != null) {
+                insertPixelAt(pixel, pixel.getX());
+            }
+        }
+        this.width++;
+    }
+
+    /**
+     * Gets the pixel at a specific x-coordinate.
+     *
+     * This method starts at a given pixel and moves to the right until it finds the
+     * pixel with the specified x-coordinate.
+     *
+     * @param start the pixel to start at
+     * @param x     the x-coordinate of the pixel to find
+     * @return the pixel at the specified x-coordinate
+     */
+    private Pixel getPixelAt(Pixel start, int x) {
+        Pixel pixel = start;
+        while (pixel != null && pixel.getX() != x) {
+            pixel = pixel.getRight();
+        }
+        return pixel;
+    }
+
+    /**
+     * Inserts a pixel at the given position in the image.
+     *
+     * @param pixel the pixel in the column of the pixel to be inserted.
+     * @param x the x-coordinate of the position where the pixel will be inserted.
+     */
+    public void insertPixelAt(Pixel pixel, int x) {
+        Pixel target = getPixelAt(pixel, x);
+        if (target != null) {
+            Pixel left = target.getLeft();
+            Pixel right = target.getRight();
+            pixel.setLeft(left);
+            pixel.setRight(target);
+            if (left != null) {
+                left.setRight(pixel);
+            }
+            target.setLeft(pixel);
+            if (x == 0) {
+                firstColumn.set(pixel.getY(), pixel);
+            }
+            if (right != null) {
+                right.setLeft(pixel);
+            }
+            pixel.setRight(right);
+            if (x == width - 1) {
+                pixel.setRight(null);
+            }
+            pixel.setColor(pixel.getInitialColor());
+        }
+    }
+
+    /**
      * Removes a pixel at the given position in the image.
      *
      * @param pixel the pixel in the column of the pixel to be removed.
@@ -439,21 +513,13 @@ public class Image {
     }
 
     /**
-     * Gets the pixel at a specific x-coordinate.
+     * Returns the last seam that was removed from the image.
      *
-     * This method starts at a given pixel and moves to the right until it finds the
-     * pixel with the specified x-coordinate.
-     *
-     * @param start the pixel to start at
-     * @param x     the x-coordinate of the pixel to find
-     * @return the pixel at the specified x-coordinate
+     * @return an ArrayList of Pixel objects representing the last seam that was removed. 
+     *         If no seams have been removed, this method returns null.
      */
-    private Pixel getPixelAt(Pixel start, int x) {
-        Pixel pixel = start;
-        while (pixel != null && pixel.getX() != x) {
-            pixel = pixel.getRight();
-        }
-        return pixel;
+    public ArrayList<Pixel> getLastRemovedSeam() {
+        return removedSeams.get(removedSeams.size() - 1);
     }
 
     /**
