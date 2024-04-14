@@ -28,6 +28,8 @@ public class Main {
             int[] lowestEnergySeam = image.findLowestEnergySeam();
             System.out.println("Lowest energy seam: " + Arrays.toString(lowestEnergySeam));
             image.highlightSeam(lowestEnergySeam, Color.RED);
+            image.exportImage("highlightedSeam");
+            image.removeSeam(lowestEnergySeam);
             image.exportImage("newImg");
             image.printImage();
         } catch (Exception e) {

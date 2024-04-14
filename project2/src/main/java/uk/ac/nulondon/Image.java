@@ -100,9 +100,9 @@ public class Image {
         this.outputFilePath = outputFilePath;
         BufferedImage newImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
         try {
-            for (int row = 0; row < 8; row++) {
+            for (int row = 0; row < this.height; row++) {
                 Pixel pixel = firstColumn.get(row);
-                for (int col = 0; col < 8; col++) {
+                for (int col = 0; col < this.width; col++) {
                     newImage.setRGB(col, row, pixel.getColor().getRGB());
                     pixel = pixel.getRight();
                 }
@@ -395,6 +395,49 @@ public class Image {
         }
     }
     
+    /**
+     * Removes a given seam from the image and stores the removed pixels.
+     *
+     * @param seam an array representing the seam to be removed. Each element is the
+     *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
+     */
+    public void removeSeam(int[] seam) {
+        ArrayList<Pixel> removedPixels = new ArrayList<>();
+        for (int y = 0; y < seam.length; y++) {
+            int x = seam[y];
+            Pixel pixel = getPixelAt(firstColumn.get(y), x);
+            if (pixel != null) {
+                removedPixels.add(pixel);
+                removePixelAt(pixel, x);
+            }
+        }
+        this.width--;
+        removedSeams.add(removedPixels);
+    }
+
+    /**
+     * Removes a pixel at the given position in the image.
+     *
+     * @param pixel the pixel in the column of the pixel to be removed.
+     * @param x the x-coordinate of the pixel to be removed.
+     */
+    public void removePixelAt(Pixel pixel, int x) {
+        Pixel target = getPixelAt(pixel, x);
+        if (target != null) {
+            Pixel left = target.getLeft();
+            Pixel right = target.getRight();
+            if (left != null && x != 0) {
+                left.setRight(right);
+            }
+            if (right != null) {
+                right.setLeft(left);
+            }
+            if (x == 0 && right != null) {
+                firstColumn.set(target.getY(), right);
+            }
+        }
+    }
+
     /**
      * Gets the pixel at a specific x-coordinate.
      *
