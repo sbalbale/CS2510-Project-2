@@ -5,6 +5,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -38,6 +39,14 @@ public class Image {
     private ArrayList<Pixel> firstColumn = new ArrayList<>();
 
     /**
+     * This is a 2D ArrayList that stores the removed seams from the image.
+     * Each ArrayList<Pixel> inside the outer ArrayList represents a seam that has been removed.
+     * A seam is a connected path of pixels in the image from top to bottom or from left to right.
+     * The Pixel objects in the inner ArrayLists are the pixels that were removed from the image when the corresponding seam was removed.
+     */
+    private ArrayList<ArrayList<Pixel>> removedSeams = new ArrayList<>();
+
+    /**
      * Constructs a new Image from the specified file path.
      * The image is read into a graph structure where each node (pixel) keeps track
      * of only its left and right neighbors.
@@ -67,6 +76,9 @@ public class Image {
                 chaser = pixel;
             }
         }
+        imageCalculateBrightness();
+        imageCalculateEnergy();
+        imageCalculateBluenesses();
     }
 
     /**
@@ -120,7 +132,7 @@ public class Image {
             System.out.println();
         }
     }
-
+    
     /**
      * Calculates the brightness of a given Pixel.
      * The brightness is calculated as the average of the red, green, and blue color
@@ -130,84 +142,63 @@ public class Image {
      * @param pixel The Pixel whose brightness is to be calculated.
      * @return The calculated brightness.
      */
-    public int br(Pixel pixel) {
+    public int calculateBrightness(Pixel pixel) {
         int r = pixel.getColor().getRed();
         int g = pixel.getColor().getGreen();
         int b = pixel.getColor().getBlue();
         int brightness = (r + g + b) / 3;
-        // System.out.println("Brightness: " + brightness);
-        if (brightness != pixel.getBrightness()) {
-            pixel.setBrightness(brightness);
-        }
         return brightness;
     }
 
+    public void imageCalculateBrightness() {
+        for (Pixel pixel : firstColumn) {
+            while (pixel != null) {
+                int brightness = calculateBrightness(pixel);
+                pixel.setBrightness(brightness);
+                pixel = pixel.getRight();
+            }
+        }
+    }
+
     /**
-     * Calculates the energy of a given Pixel.
-     * The energy is calculated based on the brightness of the Pixel and its
-     * neighbors.
-     * The calculated energy is then set as the energy of the Pixel.
+     * Calculates the energy of a given pixel.
      *
-     * @param pixel The Pixel whose energy is to be calculated.
+     * This method calculates the energy of a pixel based on the brightness of its
+     * neighbors.
+     * The brightness of a pixel is defined as the average of its RGB values.
+     * The energy is calculated as the square root of the sum of the squares of the
+     * horizontal and vertical energies.
+     *
+     * @param pixelE the pixel for which to calculate the energy
+     * @return the energy of the pixel
      */
-    public int calculateEnergy(Pixel pixel) {
-        int brE = br(pixel);
-        int brA = brE;
-        int brB = brE;
-        int brC = brE;
-        int brD = brE;
-        int brF = brE;
-        int brG = brE;
-        int brH = brE;
-        int brI = brE;
-        int x = pixel.getX();
-        int y = pixel.getY();
-        if (y != 0) {
-            Pixel b = firstColumn.get(y - 1);
-            brB = br(b);
-            while (x != b.getX()) {
-                b = b.getRight();
-            }
-            Pixel a = b.getLeft();
-            Pixel c = b.getRight();
-            if (a != null) {
-                brA = br(a);
-            }
-            if (c != null) {
-                brB = br(b);
-            }
-        }
-        Pixel e = pixel;
-        Pixel d = e.getLeft();
-        Pixel f = e.getRight();
-        if (d != null) {
-            brD = br(d);
-        }
-        if (f != null) {
-            brF = br(f);
-        }
-        if (y != 7) {
-            Pixel h = firstColumn.get(y + 1);
-            brH = br(h);
-            while (x != h.getX()) {
-                h = h.getRight();
-            }
-            Pixel g = h.getLeft();
-            Pixel i = h.getRight();
-            if (g != null) {
-                brG = br(g);
-            }
-            if (i != null) {
-                brI = br(i);
-            }
-        }
+    public int calculateEnergy(Pixel pixelE) {
+        int x = pixelE.getX();
+        int y = pixelE.getY();
+        int brE = pixelE.getBrightness();
+
+        Pixel pixelA = y > 0 && x > 0 ? getPixelAt(firstColumn.get(y - 1), x - 1) : pixelE;
+        Pixel pixelB = y > 0 ? getPixelAt(firstColumn.get(y - 1), x) : pixelE;
+        Pixel pixelC = y > 0 ? getPixelAt(firstColumn.get(y - 1), x + 1) : pixelE;
+        Pixel pixelD = x > 0 ? pixelE.getLeft() : pixelE;
+        Pixel pixelF = getPixelAt(pixelE, x + 1);
+        Pixel pixelG = y < firstColumn.size() - 1 && x > 0 ? getPixelAt(firstColumn.get(y + 1), x - 1) : pixelE;
+        Pixel pixelH = y < firstColumn.size() - 1 ? getPixelAt(firstColumn.get(y + 1), x) : pixelE;
+        Pixel pixelI = y < firstColumn.size() - 1 ? getPixelAt(firstColumn.get(y + 1), x + 1) : pixelE;
+
+        int brA = pixelA != null ? pixelA.getBrightness() : brE;
+        int brB = pixelB != null ? pixelB.getBrightness() : brE;
+        int brC = pixelC != null ? pixelC.getBrightness() : brE;
+        int brD = pixelD != null ? pixelD.getBrightness() : brE;
+        int brF = pixelF != null ? pixelF.getBrightness() : brE;
+        int brG = pixelG != null ? pixelG.getBrightness() : brE;
+        int brH = pixelH != null ? pixelH.getBrightness() : brE;
+        int brI = pixelI != null ? pixelI.getBrightness() : brE;
+
         int horizEnergy = (brA + 2 * brD + brG) - (brC + 2 * brF + brI);
         int vertEnergy = (brA + 2 * brB + brC) - (brG + 2 * brH + brI);
-        int energy = (int) Math.sqrt(Math.pow(horizEnergy, 2) + Math.pow(vertEnergy, 2));
-        // System.out.println("HorizEnergy: " + horizEnergy);
-        // System.out.println("VertEnergy: " + vertEnergy);
-        // System.out.println("Energy: " + energy);
-        return energy;
+
+        return (int) Math.sqrt(horizEnergy * horizEnergy + vertEnergy * vertEnergy);
     }
 
     /**
@@ -385,6 +376,26 @@ public class Image {
         seam = previousSeams[minIndex];
 
         return seam;
+    }
+    
+
+    
+    /**
+     * Gets the pixel at a specific x-coordinate.
+     *
+     * This method starts at a given pixel and moves to the right until it finds the
+     * pixel with the specified x-coordinate.
+     *
+     * @param start the pixel to start at
+     * @param x     the x-coordinate of the pixel to find
+     * @return the pixel at the specified x-coordinate
+     */
+    private Pixel getPixelAt(Pixel start, int x) {
+        Pixel pixel = start;
+        while (pixel != null && pixel.getX() != x) {
+            pixel = pixel.getRight();
+        }
+        return pixel;
     }
 
     /**

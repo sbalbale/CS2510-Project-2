@@ -15,8 +15,9 @@ public class Main {
      */
     public static void main(String[] args) {
         try {
-            Image image = new Image("project2\\src\\main\\resources\\8x8 Images\\beach.png");
+            Image image = new Image("project2\\src\\main\\resources\\SampleImages\\beach.png");
             image.printImage();
+            image.imageCalculateBrightness();
             image.imageCalculateEnergy();
             image.imageCalculateBluenesses();
             System.out.println();
