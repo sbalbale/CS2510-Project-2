@@ -1,5 +1,6 @@
 package uk.ac.nulondon;
 
+import java.awt.Color;
 import java.util.Arrays;
 
 public class Main {
@@ -26,6 +27,7 @@ public class Main {
             System.out.println("Bluest seam: " + Arrays.toString(bluestSeam));
             int[] lowestEnergySeam = image.findLowestEnergySeam();
             System.out.println("Lowest energy seam: " + Arrays.toString(lowestEnergySeam));
+            image.highlightSeam(lowestEnergySeam, Color.RED);
             image.exportImage("newImg");
             image.printImage();
         } catch (Exception e) {

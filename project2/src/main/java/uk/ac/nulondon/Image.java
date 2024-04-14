@@ -378,7 +378,22 @@ public class Image {
         return seam;
     }
     
-
+    /**
+     * Highlights a given seam in the image with a specified color.
+     *
+     * @param seam an array representing the seam to be highlighted. Each element is the
+     *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
+     * @param color the color to use for highlighting the seam.
+     */
+    public void highlightSeam(int[] seam, Color color) {
+        for (int y = 0; y < seam.length; y++) {
+            int x = seam[y];
+            Pixel pixel = getPixelAt(firstColumn.get(y), x);
+            if (pixel != null) {
+                pixel.setColor(color);
+            }
+        }
+    }
     
     /**
      * Gets the pixel at a specific x-coordinate.
