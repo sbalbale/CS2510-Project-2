@@ -160,9 +160,9 @@ public class Pixel {
     public String toString() {
         return "Pixel{" +
                 "loc=(" + x + "," + y + ")" +
-                ", color=(R:" + color.getRed() + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
+                // ", color=(R:" + color.getRed() + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
                 // ", brightness=" + brightness +
-                // ", energy=" + energy +
+                ", en=" + energy +
                 // ", blueness=" + blueness +
                 // ", left= " + (left != null ? "(" + left.getX() + "," + left.getY() + ")" :
                 // "null") +
