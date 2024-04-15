@@ -5,10 +5,8 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 
 /**
  * The Image class represents an image as a graph structure where each node
@@ -106,6 +104,7 @@ public class Image {
             for (int row = 0; row < this.height; row++) {
                 Pixel pixel = firstColumn.get(row);
                 for (int col = 0; col < this.width; col++) {
+                    System.out.println("Row: " + row + " Col: " + col + " Color: " + pixel);
                     newImage.setRGB(col, row, pixel.getColor().getRGB());
                     pixel = pixel.getRight();
                 }
@@ -169,33 +168,30 @@ public class Image {
     }
 
     /**
-     * Calculates the energy of a given pixel.
+     * Calculates the energy of a pixel in an image. The energy of a pixel is a measure of its importance in the image.
+     * The energy is calculated based on the brightness of the pixel and its eight neighboring pixels.
+     * This method is used in the context of seam carving, an image resizing technique that removes seams from an image.
      *
-     * This method calculates the energy of a pixel based on the brightness of its
-     * neighbors.
-     * The brightness of a pixel is defined as the average of its RGB values.
-     * The energy is calculated as the square root of the sum of the squares of the
-     * horizontal and vertical energies.
-     * 
-     * A B C
-     * D E F
-     * G H I
-     *
-     * @param pixelE the pixel for which to calculate the energy
-     * @return the energy of the pixel
+     * @param pixelE The current pixel for which the energy is being calculated.
+     * @param pixelB The pixel above the current pixel.
+     * @param pixelH The pixel below the current pixel.
+     * @return The energy of the current pixel, calculated as the square root of the sum of the squares of the horizontal and vertical energy.
      */
     public int calculateEnergy(Pixel pixelE, Pixel pixelB, Pixel pixelH) {
+        // Get the x and y coordinates and the brightness of the current pixel
         int x = pixelE.getX();
         int y = pixelE.getY();
         int brE = pixelE.getBrightness();      
-    
-        Pixel pixelA = y > 0 && x > 0 ? pixelB.getLeft() : null;
-        Pixel pixelC = y > 0 && x < width - 1 ? pixelB.getRight() : null;
-        Pixel pixelD = x > 0 ? pixelE.getLeft() : null;
-        Pixel pixelF = x < width - 1 ? pixelE.getRight() : null;
-        Pixel pixelG = y < height - 1 && x > 0 ? pixelH.getLeft() : null;
-        Pixel pixelI = y < height - 1 && x < width - 1 ? pixelH.getRight() : null;
-    
+
+        // Identify the eight neighboring pixels of the current pixel
+        Pixel pixelA = y > 0 && x > 0 ? pixelB.getLeft() : pixelE;
+        Pixel pixelC = y > 0 ? pixelB.getRight() : pixelE;
+        Pixel pixelD = x > 0 ? pixelE.getLeft() : pixelE;
+        Pixel pixelF = pixelE.getRight();
+        Pixel pixelG = y < firstColumn.size() - 1 && x > 0 ? pixelH.getLeft() : pixelE;
+        Pixel pixelI = y < firstColumn.size() - 1 ? pixelH.getRight() : pixelE;
+
+        // Get the brightness of each neighboring pixel. If a neighboring pixel is null, use the brightness of the current pixel
         int brA = pixelA != null ? pixelA.getBrightness() : brE;
         int brB = pixelB != null ? pixelB.getBrightness() : brE;
         int brC = pixelC != null ? pixelC.getBrightness() : brE;
@@ -204,10 +200,12 @@ public class Image {
         int brG = pixelG != null ? pixelG.getBrightness() : brE;
         int brH = pixelH != null ? pixelH.getBrightness() : brE;
         int brI = pixelI != null ? pixelI.getBrightness() : brE;
-    
+
+        // Calculate the horizontal and vertical energy of the current pixel
         int horizEnergy = (brA + 2 * brD + brG) - (brC + 2 * brF + brI);
         int vertEnergy = (brA + 2 * brB + brC) - (brG + 2 * brH + brI);
-    
+
+        // Return the total energy of the current pixel
         return (int) Math.sqrt(horizEnergy * horizEnergy + vertEnergy * vertEnergy);
     }
 
@@ -218,13 +216,15 @@ public class Image {
      */
     public void imageCalculateEnergy() {
         for (int i = 0; i < firstColumn.size(); i++) {
-            Pixel pixel = firstColumn.get(i);
-            while (pixel != null) {
-                Pixel pixelB = i > 0 ? firstColumn.get(i - 1) : null;
-                Pixel pixelH = i < firstColumn.size() - 1 ? firstColumn.get(i + 1) : null;
-                int energy = calculateEnergy(pixel, pixelB, pixelH);
-                pixel.setEnergy(energy);
-                pixel = pixel.getRight();
+            Pixel pixelE = firstColumn.get(i);
+            Pixel pixelB = i > 0 ? firstColumn.get(i - 1) : pixelE;
+            Pixel pixelH = i < firstColumn.size() - 1 ? firstColumn.get(i + 1) : pixelE;
+            while (pixelE != null) {
+                int energy = calculateEnergy(pixelE, pixelB, pixelH);
+                pixelE.setEnergy(energy);
+                pixelE = pixelE.getRight();
+                pixelB = pixelB.getRight();
+                pixelH = pixelH.getRight();
             }
         }
     }
@@ -273,62 +273,7 @@ public class Image {
      * @return an array representing the bluest seam. Each element is the
      *         x-coordinate of the pixel in the seam for the corresponding
      *         y-coordinate.
-     */    
-    // public ArrayList<Pixel> findBluestSeam() {
-    //     int height = firstColumn.size();
-    //     int[] seam = new int[height];
-    //     int[] previousValues = new int[height];
-    //     int[][] previousSeams = new int[height][height];
-
-    //     // Initialize the first row
-    //     Pixel pixel = firstColumn.get(0);
-    //     int i = 0;
-    //     while (pixel != null) {
-    //         previousValues[i] = pixel.getBlueness();
-    //         previousSeams[i][0] = i;
-    //         pixel = pixel.getRight();
-    //         i++;
-    //     }
-
-    //     // Process the remaining rows
-    //     for (int y = 1; y < height; y++) {
-    //         pixel = firstColumn.get(y);
-    //         int[] currentValues = new int[i];
-    //         int[][] currentSeams = new int[i][height];
-    //         int x = 0;
-    //         while (pixel != null) {
-    //             int left = x > 0 ? previousValues[x - 1] : -1;
-    //             int middle = x < previousValues.length ? previousValues[x]: -1;
-    //             int right = x < i - 1 ? previousValues[x + 1] : -1;
-    //             int max = Math.max(Math.max(left, middle), right);
-    //             currentValues[x] = pixel.getBlueness() + max;
-    //             if (max == left) {
-    //                 System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
-    //             } else if (max == middle) {
-    //                 System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
-    //             } else {
-    //                 System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
-    //             }
-    //             currentSeams[x][y] = x;
-    //             pixel.setBlueness(currentValues[x]);
-    //             pixel = pixel.getRight();
-    //             x++;
-    //         }
-    //         previousValues = currentValues;
-    //         previousSeams = currentSeams;
-    //     }
-
-    //     // Find the bluest seam
-    //     int maxIndex = indexOfLargest(previousValues);
-    //     seam = previousSeams[maxIndex];
-
-    //     ArrayList<Pixel> seamPixels = new ArrayList<>();
-    //     for (int y = 0; y < seam.length; y++) {
-    //         pixel = getPixelAt(firstColumn.get(y), seam[y]);
-    //         seamPixels.add(pixel);
-    //     }
-    //     return seamPixels;
-    // }
+     */
     public ArrayList<Pixel> findBluestSeam() {
         int height = firstColumn.size();
         ArrayList<Pixel> seam = new ArrayList<>();
@@ -419,22 +364,20 @@ public class Image {
             Pixel[][] currentSeams = new Pixel[i][height];
             int x = 0;
             while (pixel != null) {
-                int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
-                int middle = x < previousValues.length ? previousValues[x]: Integer.MAX_VALUE;
-                int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
-                int min = Math.min(Math.min(left, middle), right);
-                currentValues[x] = pixel.getEnergy() + min;
-    
-                // Update the seam for the current pixel
-                if (min == left) {
-                    System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
-                } else if (min == middle) {
-                    System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
-                } else {
-                    System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
+                // Calculate the total energy for all possible seams ending at this pixel
+                int minEnergy = Integer.MAX_VALUE;
+                for (int dx = -1; dx <= 1; dx++) {
+                    if (x + dx >= 0 && x + dx < previousValues.length) {
+                        int energy = pixel.getEnergy() + previousValues[x + dx];
+                        if (energy < minEnergy) {
+                            minEnergy = energy;
+                            // Copy the seam from the previous row
+                            System.arraycopy(previousSeams[x + dx], 0, currentSeams[x], 0, y);
+                        }
+                    }
                 }
+                currentValues[x] = minEnergy;
                 currentSeams[x][y] = pixel;
-                pixel.setEnergy(currentValues[x]);
                 pixel = pixel.getRight();
                 x++;
             }
@@ -451,84 +394,6 @@ public class Image {
         return seam;
     }
 
-    // public ArrayList<Pixel> findLowestEnergySeam() {
-    //     int height = firstColumn.size();
-    //     int[] seam = new int[height];
-    //     int[] previousValues = new int[height];
-    //     int[][] previousSeams = new int[height][height];
-
-    //     // Initialize the first row
-    //     Pixel pixel = firstColumn.get(0);
-    //     int i = 0;
-    //     while (pixel != null) {
-    //         previousValues[i] = pixel.getEnergy();
-    //         previousSeams[i][0] = i;
-    //         pixel = pixel.getRight();
-    //         i++;
-    //     }
-
-    //     // Process the remaining rows
-    //     for (int y = 1; y < height; y++) {
-    //         pixel = firstColumn.get(y);
-    //         int[] currentValues = new int[i];
-    //         int[][] currentSeams = new int[i][height];
-    //         int x = 0;
-    //         while (pixel != null) {
-    //             int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
-    //             int middle = x < previousValues.length ? previousValues[x]: Integer.MAX_VALUE;
-    //             int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
-    //             int min = Math.min(Math.min(left, middle), right);
-    //             currentValues[x] = pixel.getEnergy() + min;
-
-    //             // Update the seam for the current pixel
-    //             if (min == left) {
-    //                 System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
-    //             } else if (min == middle) {
-    //                 System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
-    //             } else {
-    //                 System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
-    //             }
-    //             currentSeams[x][y] = x;
-    //             pixel.setEnergy(currentValues[x]);
-    //             pixel = pixel.getRight();
-    //             x++;
-    //         }
-
-    //         // Prepare for the next row
-    //         previousValues = currentValues;
-    //         previousSeams = currentSeams;
-    //     }
-
-    //     // Find the lowest energy seam
-    //     int minIndex = indexOfSmallest(previousValues);
-    //     seam = previousSeams[minIndex];
-
-    //     ArrayList<Pixel> seamPixels = new ArrayList<>();
-    //     for (int y = 0; y < seam.length; y++) {
-    //         pixel = getPixelAt(firstColumn.get(y), seam[y]);
-    //         seamPixels.add(pixel);
-    //     }
-    //     return seamPixels;
-    // }
-
-    
-    
-    // /**
-    //  * Highlights a given seam in the image with a specified color.
-    //  *
-    //  * @param seam an array representing the seam to be highlighted. Each element is the
-    //  *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
-    //  * @param color the color to use for highlighting the seam.
-    //  */
-    // public void highlightSeam(int[] seam, Color color) {
-    //     for (int y = 0; y < seam.length; y++) {
-    //         int x = seam[y];
-    //         Pixel pixel = getPixelAt(firstColumn.get(y), x);
-    //         if (pixel != null) {
-    //             pixel.setColor(color);
-    //         }
-    //     }
-    // }
     /**
      * Highlights a given seam in the image with a specified color.
      *
@@ -543,25 +408,6 @@ public class Image {
         }
     }
     
-    // /**
-    //  * Removes a given seam from the image and stores the removed pixels.
-    //  *
-    //  * @param seam an array representing the seam to be removed. Each element is the
-    //  *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
-    //  */
-    // public void removeSeam(int[] seam) {
-    //     ArrayList<Pixel> removedPixels = new ArrayList<>();
-    //     for (int y = 0; y < seam.length; y++) {
-    //         int x = seam[y];
-    //         Pixel pixel = getPixelAt(firstColumn.get(y), x);
-    //         if (pixel != null) {
-    //             removedPixels.add(pixel);
-    //             removePixelAt(pixel, x);
-    //         }
-    //     }
-    //     this.width--;
-    //     removedSeams.add(removedPixels);
-    // }
     /**
      * Removes a given seam from the image and stores the removed pixels.
      *
@@ -572,7 +418,7 @@ public class Image {
         for (Pixel pixel : seam) {
             if (pixel != null) {
                 removedPixels.add(pixel);
-                removePixelAt(pixel, pixel.getX());
+                removePixelAt(pixel);
             }
         }
         this.width--;
@@ -589,7 +435,7 @@ public class Image {
         for (int y = 0; y < seam.size(); y++) {
             Pixel pixel = seam.get(y);
             if (pixel != null) {
-                insertPixelAt(pixel, pixel.getX());
+                insertPixelAt(pixel);
             }
         }
         this.width++;
@@ -620,7 +466,25 @@ public class Image {
      * @param pixel the pixel in the column of the pixel to be inserted.
      * @param x the x-coordinate of the position where the pixel will be inserted.
      */
-    public void insertPixelAt(Pixel pixel, int x) {
+    // public void insertPixelAt(Pixel pixel, int x) {
+    //     if (pixel != null) {
+    //         Pixel left = pixel.getLeft();
+    //         Pixel right = pixel.getRight();
+    //         pixel.setLeft(left);
+    //         pixel.setRight(right);
+    //         if (left != null) {
+    //             left.setRight(pixel);
+    //         }
+    //         if (right != null) {
+    //             right.setLeft(pixel);
+    //         }
+    //         if (pixel == firstColumn.get(pixel.getY())) {
+    //             firstColumn.set(pixel.getY(), pixel);
+    //         }
+    //         pixel.setColor(pixel.getInitialColor());
+    //     }
+    // }
+    public void insertPixelAt(Pixel pixel) {
         if (pixel != null) {
             Pixel left = pixel.getLeft();
             Pixel right = pixel.getRight();
@@ -629,11 +493,11 @@ public class Image {
             if (left != null) {
                 left.setRight(pixel);
             }
-            if (x == 0) {
-                firstColumn.set(pixel.getY(), pixel);
-            }
             if (right != null) {
                 right.setLeft(pixel);
+            }
+            if (right == firstColumn.get(pixel.getY())) {
+                firstColumn.set(pixel.getY(), pixel);
             }
             pixel.setColor(pixel.getInitialColor());
         }
@@ -645,17 +509,17 @@ public class Image {
      * @param pixel the pixel in the column of the pixel to be removed.
      * @param x the x-coordinate of the pixel to be removed.
      */
-    public void removePixelAt(Pixel pixel, int x) {
+    public void removePixelAt(Pixel pixel) {
         if (pixel != null) {
             Pixel left = pixel.getLeft();
             Pixel right = pixel.getRight();
-            if (left != null && x != 0) {
+            if (left != null) {
                 left.setRight(right);
             }
             if (right != null) {
                 right.setLeft(left);
             }
-            if (x == 0 && right != null) {
+            if (pixel == firstColumn.get(pixel.getY())) {
                 firstColumn.set(pixel.getY(), right);
             }
         }

@@ -64,7 +64,7 @@ public class ImageEditor {
         }
     }
 
-    public void start() {
+    public void startEditor() {
         Scanner scanner = new Scanner(System.in);
         String input;
         int tempImgCount = 0;
@@ -89,7 +89,7 @@ public class ImageEditor {
                     }
                     highlightedSeam = image.findBluestSeam();
                     image.highlightSeam(highlightedSeam, Color.BLUE);
-                    image.exportImage("tempIMG_" + tempImgCount + ".png");
+                    image.exportImage("tempIMG_" + tempImgCount);
                     tempImgCount++;
                     image.printSeam(highlightedSeam);
                     System.out.println("Bluest seam found. Press 'd' to delete the seam.");
@@ -100,7 +100,7 @@ public class ImageEditor {
                     }
                     highlightedSeam = image.findLowestEnergySeam();
                     image.highlightSeam(highlightedSeam, Color.RED);
-                    image.exportImage("tempIMG_" + tempImgCount + ".png");
+                    image.exportImage("tempIMG_" + tempImgCount);
                     tempImgCount++;
                     image.printSeam(highlightedSeam);
                     System.out.println("Lowest energy seam found. Press 'd' to delete the seam.");
@@ -110,7 +110,7 @@ public class ImageEditor {
                         image.removeSeam(highlightedSeam);
                         lastRemovedSeam = image.getLastRemovedSeam();
                         highlightedSeam = null;
-                        image.exportImage("tempIMG_" + tempImgCount + ".png");
+                        image.exportImage("tempIMG_" + tempImgCount);
                         tempImgCount++;
                     } else {
                         System.out.println("No seam highlighted. Please highlight a seam before deleting.");
@@ -121,9 +121,10 @@ public class ImageEditor {
                         undoHighlightedSeam();
                     }
                     if (lastRemovedSeam != null) {
+                        image.printSeam(lastRemovedSeam);
                         image.insertSeam(lastRemovedSeam);
                         lastRemovedSeam = null;
-                        image.exportImage("tempIMG_" + tempImgCount + ".png");
+                        image.exportImage("tempIMG_" + tempImgCount);
                         tempImgCount++;
                     } else {
                         System.out.println("No seam to undo. Please delete a seam before undoing.");
@@ -133,7 +134,8 @@ public class ImageEditor {
                     if (highlightedSeam != null) {
                         undoHighlightedSeam();
                     }
-                    image.exportImage("newImg.png");
+                    image.exportImage("newImg");
+                    scanner.close();
                     return;
                 default:
                     if (highlightedSeam != null) {
