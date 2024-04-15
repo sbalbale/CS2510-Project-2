@@ -25,7 +25,7 @@ public class ImageEditor {
      * The currently highlighted seam in the image.
      * This is an array of integers representing the x-coordinates of the pixels in the seam.
      */
-    private int[] highlightedSeam;
+    private ArrayList<Pixel> highlightedSeam;
 
     /**
      * The last seam that was removed from the image.
@@ -91,7 +91,7 @@ public class ImageEditor {
                     image.highlightSeam(highlightedSeam, Color.BLUE);
                     image.exportImage("tempIMG_" + tempImgCount + ".png");
                     tempImgCount++;
-                    System.out.println(Arrays.toString(highlightedSeam));
+                    image.printSeam(highlightedSeam);
                     System.out.println("Bluest seam found. Press 'd' to delete the seam.");
                     break;
                 case "e":
@@ -102,7 +102,7 @@ public class ImageEditor {
                     image.highlightSeam(highlightedSeam, Color.RED);
                     image.exportImage("tempIMG_" + tempImgCount + ".png");
                     tempImgCount++;
-                    System.out.println(Arrays.toString(highlightedSeam));
+                    image.printSeam(highlightedSeam);
                     System.out.println("Lowest energy seam found. Press 'd' to delete the seam.");
                     break;
                 case "d":

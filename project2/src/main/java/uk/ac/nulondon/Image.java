@@ -81,9 +81,7 @@ public class Image {
                 chaser = pixel;
             }
         }
-        imageCalculateBrightness();
-        imageCalculateEnergy();
-        imageCalculateBluenesses();
+        updateValues();
     }
 
     /**
@@ -271,7 +269,57 @@ public class Image {
      *         x-coordinate of the pixel in the seam for the corresponding
      *         y-coordinate.
      */
-    public int[] findBluestSeam() {
+    // public int[] findBluestSeam() {
+    //     int height = firstColumn.size();
+    //     int[] seam = new int[height];
+    //     int[] previousValues = new int[height];
+    //     int[][] previousSeams = new int[height][height];
+
+    //     // Initialize the first row
+    //     Pixel pixel = firstColumn.get(0);
+    //     int i = 0;
+    //     while (pixel != null) {
+    //         previousValues[i] = pixel.getBlueness();
+    //         previousSeams[i][0] = i;
+    //         pixel = pixel.getRight();
+    //         i++;
+    //     }
+
+    //     // Process the remaining rows
+    //     for (int y = 1; y < height; y++) {
+    //         pixel = firstColumn.get(y);
+    //         int[] currentValues = new int[i];
+    //         int[][] currentSeams = new int[i][height];
+    //         int x = 0;
+    //         while (pixel != null) {
+    //             int left = x > 0 ? previousValues[x - 1] : -1;
+    //             int middle = previousValues[x];
+    //             int right = x < i - 1 ? previousValues[x + 1] : -1;
+    //             int max = Math.max(Math.max(left, middle), right);
+    //             currentValues[x] = pixel.getBlueness() + max;
+    //             if (max == left) {
+    //                 System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
+    //             } else if (max == middle) {
+    //                 System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
+    //             } else {
+    //                 System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
+    //             }
+    //             currentSeams[x][y] = x;
+    //             pixel.setBlueness(currentValues[x]);
+    //             pixel = pixel.getRight();
+    //             x++;
+    //         }
+    //         previousValues = currentValues;
+    //         previousSeams = currentSeams;
+    //     }
+
+    //     // Find the bluest seam
+    //     int maxIndex = indexOfLargest(previousValues);
+    //     seam = previousSeams[maxIndex];
+    //     return seam;
+    // }
+    
+    public ArrayList<Pixel> findBluestSeam() {
         int height = firstColumn.size();
         int[] seam = new int[height];
         int[] previousValues = new int[height];
@@ -318,8 +366,15 @@ public class Image {
         // Find the bluest seam
         int maxIndex = indexOfLargest(previousValues);
         seam = previousSeams[maxIndex];
-        return seam;
+
+        ArrayList<Pixel> seamPixels = new ArrayList<>();
+        for (int y = 0; y < seam.length; y++) {
+            pixel = getPixelAt(firstColumn.get(y), seam[y]);
+            seamPixels.add(pixel);
+        }
+        return seamPixels;
     }
+    
 
     /**
      * Finds the path from top to bottom with the minimum total energy.
@@ -333,7 +388,62 @@ public class Image {
      *         x-coordinate of the pixel in the seam for the corresponding
      *         y-coordinate.
      */
-    public int[] findLowestEnergySeam() {
+    // public int[] findLowstEnergySeam() {
+    //     int height = firstColumn.size();
+    //     int[] seam = new int[height];
+    //     int[] previousValues = new int[height];
+    //     int[][] previousSeams = new int[height][height];
+
+    //     // Initialize the first row
+    //     Pixel pixel = firstColumn.get(0);
+    //     int i = 0;
+    //     while (pixel != null) {
+    //         previousValues[i] = pixel.getEnergy();
+    //         previousSeams[i][0] = i;
+    //         pixel = pixel.getRight();
+    //         i++;
+    //     }
+
+    //     // Process the remaining rows
+    //     for (int y = 1; y < height; y++) {
+    //         pixel = firstColumn.get(y);
+    //         int[] currentValues = new int[i];
+    //         int[][] currentSeams = new int[i][height];
+    //         int x = 0;
+    //         while (pixel != null) {
+    //             int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
+    //             int middle = previousValues[x];
+    //             int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
+    //             int min = Math.min(Math.min(left, middle), right);
+    //             currentValues[x] = pixel.getEnergy() + min;
+
+    //             // Update the seam for the current pixel
+    //             if (min == left) {
+    //                 System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
+    //             } else if (min == middle) {
+    //                 System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
+    //             } else {
+    //                 System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
+    //             }
+    //             currentSeams[x][y] = x;
+    //             pixel.setEnergy(currentValues[x]);
+    //             pixel = pixel.getRight();
+    //             x++;
+    //         }
+
+    //         // Prepare for the next row
+    //         previousValues = currentValues;
+    //         previousSeams = currentSeams;
+    //     }
+
+    //     // Find the lowest energy seam
+    //     int minIndex = indexOfSmallest(previousValues);
+    //     seam = previousSeams[minIndex];
+
+    //     return seam;
+    // }
+
+    public ArrayList<Pixel> findLowestEnergySeam() {
         int height = firstColumn.size();
         int[] seam = new int[height];
         int[] previousValues = new int[height];
@@ -385,45 +495,82 @@ public class Image {
         int minIndex = indexOfSmallest(previousValues);
         seam = previousSeams[minIndex];
 
-        return seam;
+        ArrayList<Pixel> seamPixels = new ArrayList<>();
+        for (int y = 0; y < seam.length; y++) {
+            pixel = getPixelAt(firstColumn.get(y), seam[y]);
+            seamPixels.add(pixel);
+        }
+        return seamPixels;
     }
+
     
+    
+    // /**
+    //  * Highlights a given seam in the image with a specified color.
+    //  *
+    //  * @param seam an array representing the seam to be highlighted. Each element is the
+    //  *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
+    //  * @param color the color to use for highlighting the seam.
+    //  */
+    // public void highlightSeam(int[] seam, Color color) {
+    //     for (int y = 0; y < seam.length; y++) {
+    //         int x = seam[y];
+    //         Pixel pixel = getPixelAt(firstColumn.get(y), x);
+    //         if (pixel != null) {
+    //             pixel.setColor(color);
+    //         }
+    //     }
+    // }
     /**
      * Highlights a given seam in the image with a specified color.
      *
-     * @param seam an array representing the seam to be highlighted. Each element is the
-     *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
+     * @param seam an ArrayList of Pixel objects representing the seam to be highlighted.
      * @param color the color to use for highlighting the seam.
      */
-    public void highlightSeam(int[] seam, Color color) {
-        for (int y = 0; y < seam.length; y++) {
-            int x = seam[y];
-            Pixel pixel = getPixelAt(firstColumn.get(y), x);
+    public void highlightSeam(ArrayList<Pixel> seam, Color color) {
+        for (Pixel pixel : seam) {
             if (pixel != null) {
                 pixel.setColor(color);
             }
         }
     }
     
+    // /**
+    //  * Removes a given seam from the image and stores the removed pixels.
+    //  *
+    //  * @param seam an array representing the seam to be removed. Each element is the
+    //  *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
+    //  */
+    // public void removeSeam(int[] seam) {
+    //     ArrayList<Pixel> removedPixels = new ArrayList<>();
+    //     for (int y = 0; y < seam.length; y++) {
+    //         int x = seam[y];
+    //         Pixel pixel = getPixelAt(firstColumn.get(y), x);
+    //         if (pixel != null) {
+    //             removedPixels.add(pixel);
+    //             removePixelAt(pixel, x);
+    //         }
+    //     }
+    //     this.width--;
+    //     removedSeams.add(removedPixels);
+    // }
     /**
      * Removes a given seam from the image and stores the removed pixels.
      *
-     * @param seam an array representing the seam to be removed. Each element is the
-     *             x-coordinate of the pixel in the seam for the corresponding y-coordinate.
+     * @param seam an ArrayList of Pixel objects representing the seam to be removed.
      */
-    public void removeSeam(int[] seam) {
+    public void removeSeam(ArrayList<Pixel> seam) {
         ArrayList<Pixel> removedPixels = new ArrayList<>();
-        for (int y = 0; y < seam.length; y++) {
-            int x = seam[y];
-            Pixel pixel = getPixelAt(firstColumn.get(y), x);
+        for (Pixel pixel : seam) {
             if (pixel != null) {
                 removedPixels.add(pixel);
-                removePixelAt(pixel, x);
+                removePixelAt(pixel, pixel.getX());
             }
         }
         this.width--;
         removedSeams.add(removedPixels);
     }
+
 
     /**
      * Inserts a given seam into the image.
@@ -630,5 +777,23 @@ public class Image {
             }
             System.out.println();
         }
+    }
+
+    /**
+     * Prints the coordinates of the pixels in the given seam.
+     *
+     * This method iterates over the pixels in the given seam and prints their
+     * coordinates in the format (x,y). The coordinates are separated by spaces.
+     * After all the coordinates have been printed, it prints a newline.
+     *
+     * @param seam an ArrayList of Pixel objects representing the seam to be printed.
+     */
+    public void printSeam(ArrayList<Pixel> seam) {
+        for (Pixel pixel : seam) {
+            if (pixel != null){
+                System.out.print("(" + pixel.getX() + "," + pixel.getY() + ") ");
+            }
+        }
+        System.out.println();
     }
 }
