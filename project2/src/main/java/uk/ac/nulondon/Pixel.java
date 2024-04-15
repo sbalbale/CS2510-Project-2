@@ -160,14 +160,14 @@ public class Pixel {
     public String toString() {
         return "Pixel{" +
                 "loc=(" + x + "," + y + ")" +
-                // ", color=(R:" + color.getRed() + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
-                // ", brightness=" + brightness +
+                ", color=(R:" + color.getRed() + ", G:" + color.getGreen() + ", B:" + color.getBlue() + ")" +
+                ", brightness=" + brightness +
                 ", en=" + energy +
-                // ", blueness=" + blueness +
-                // ", left= " + (left != null ? "(" + left.getX() + "," + left.getY() + ")" :
-                // "null") +
-                // ", right= " + (right != null ? "(" + right.getX() + "," + right.getY() + ")"
-                // : "null") +
+                ", blueness=" + blueness +
+                ", left= " + (left != null ? "(" + left.getX() + "," + left.getY() + ")" :
+                "null") +
+                ", right= " + (right != null ? "(" + right.getX() + "," + right.getY() + ")"
+                : "null") +
                 '}';
     }
 

@@ -59,26 +59,42 @@ public class Image {
      * @throws IOException If an error occurs while reading the image file.
      */
     public Image(String filePath) throws IOException {
+        // Create a new File object from the provided file path
         File input = new File(filePath);
+        // Read the image from the file
         BufferedImage img = ImageIO.read(input);
+        // Set the width of the image
         this.width = img.getWidth();
+        // Set the height of the image
         this.height = img.getHeight();
+        // Store the file path of the image
         this.filePath = filePath;
+        // Declare a Pixel object to keep track of the current pixel
         Pixel chaser = null;
-        System.out.println("Width: " + width + " Height: " + height);
+        // Print the width and height of the image to the console
+        // System.out.println("Width: " + width + " Height: " + height);
+        // Loop over each row of pixels in the image
         for (int row = 0; row < height; row++) {
+            // Loop over each column of pixels in the image
             for (int col = 0; col < width; col++) {
+                // Get the color of the current pixel
                 Color color = new Color(img.getRGB(col, row));
+                // Create a new Pixel object for the current pixel
                 Pixel pixel = new Pixel(col, row, color);
+                // If the current pixel is in the first column, add it to the firstColumn list
                 if (col == 0) {
                     firstColumn.add(pixel);
                 } else {
+                    // Otherwise, set the right neighbor of the previous pixel to the current pixel
+                    // and set the left neighbor of the current pixel to the previous pixel
                     chaser.setRight(pixel);
                     pixel.setLeft(chaser);
                 }
+                // Set the current pixel as the previous pixel for the next iteration
                 chaser = pixel;
             }
         }
+        // Update the energy and blueness values of the pixels in the image
         updateValues();
     }
 
@@ -98,19 +114,30 @@ public class Image {
      * @param outputFilePath The path where the output image will be saved.
      */
     public void exportImage(String outputFilePath) {
+        // Set the output file path for the image
         this.outputFilePath = outputFilePath;
+        // Create a new BufferedImage object with the width and height of the image
         BufferedImage newImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
         try {
+            // Loop over each row of pixels in the image
             for (int row = 0; row < this.height; row++) {
+                // Get the first pixel in the current row
                 Pixel pixel = firstColumn.get(row);
+                // Loop over each column of pixels in the image
                 for (int col = 0; col < this.width; col++) {
-                    System.out.println("Row: " + row + " Col: " + col + " Color: " + pixel);
+                    // Print the row, column, and color of the current pixel to the console
+                    // System.out.println("Row: " + row + " Col: " + col + " Color: " + pixel);
+                    // Set the color of the current pixel in the new image
                     newImage.setRGB(col, row, pixel.getColor().getRGB());
+                    // Move to the next pixel in the row
                     pixel = pixel.getRight();
                 }
             }
+            // Create a new File object for the output file
             File output = new File("project2\\Output\\" + outputFilePath + ".png");
+            // Write the new image to the output file
             ImageIO.write(newImage, "png", output);
+        // Catch any IOExceptions that occur and print the stack trace
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -125,11 +152,16 @@ public class Image {
      * After all pixels in a row have been printed, it prints a new line.
      */
     public void printImage() {
+        // Loop over each pixel in the first column of the image
         for (Pixel pixel : firstColumn) {
+            // While the current pixel is not null
             while (pixel != null) {
+                // Print the string representation of the current pixel to the console
                 System.out.print(pixel.toString() + " ");
+                // Move to the next pixel in the row
                 pixel = pixel.getRight();
             }
+            // Print a newline to the console
             System.out.println();
         }
     }
@@ -144,10 +176,15 @@ public class Image {
      * @return The calculated brightness.
      */
     public int calculateBrightness(Pixel pixel) {
+        // Get the red component of the pixel's color
         int r = pixel.getColor().getRed();
+        // Get the green component of the pixel's color
         int g = pixel.getColor().getGreen();
+        // Get the blue component of the pixel's color
         int b = pixel.getColor().getBlue();
+        // Calculate the brightness of the pixel as the average of the red, green, and blue components
         int brightness = (r + g + b) / 3;
+        // Return the calculated brightness
         return brightness;
     }
 
@@ -158,10 +195,15 @@ public class Image {
      * The brightness is calculated using the calculateBrightness method.
      */
     public void imageCalculateBrightness() {
+        // Loop over each pixel in the first column of the image
         for (Pixel pixel : firstColumn) {
+            // While the current pixel is not null
             while (pixel != null) {
+                // Calculate the brightness of the current pixel
                 int brightness = calculateBrightness(pixel);
+                // Set the brightness of the current pixel
                 pixel.setBrightness(brightness);
+                // Move to the next pixel in the row
                 pixel = pixel.getRight();
             }
         }
@@ -215,13 +257,19 @@ public class Image {
      * on each Pixel.
      */
     public void imageCalculateEnergy() {
+        // Loop over each pixel in the first column of the image
         for (int i = 0; i < firstColumn.size(); i++) {
+            // Get the current pixel, and the pixels directly above and below it
             Pixel pixelE = firstColumn.get(i);
             Pixel pixelB = i > 0 ? firstColumn.get(i - 1) : pixelE;
             Pixel pixelH = i < firstColumn.size() - 1 ? firstColumn.get(i + 1) : pixelE;
+            // While the current pixel is not null
             while (pixelE != null) {
+                // Calculate the energy of the current pixel
                 int energy = calculateEnergy(pixelE, pixelB, pixelH);
+                // Set the energy of the current pixel
                 pixelE.setEnergy(energy);
+                // Move to the next pixel in the row
                 pixelE = pixelE.getRight();
                 pixelB = pixelB.getRight();
                 pixelH = pixelH.getRight();
@@ -240,7 +288,9 @@ public class Image {
      * @return the blueness of the pixel
      */
     public int calculateBlueness(Pixel pixel) {
+        // Get the blue component of the pixel's color
         int blueness = pixel.getColor().getBlue();
+        // Return the blue component
         return blueness;
     }
 
@@ -254,56 +304,71 @@ public class Image {
      * has processed all pixels in the image.
      */
     public void imageCalculateBluenesses() {
+        // Loop over each pixel in the first column of the image
         for (Pixel pixel : firstColumn) {
+            // While the current pixel is not null
             while (pixel != null) {
+                // Calculate the blueness of the current pixel
                 int blueness = calculateBlueness(pixel);
+                // Set the blueness of the current pixel
                 pixel.setBlueness(blueness);
+                // Move to the next pixel in the row
                 pixel = pixel.getRight();
             }
         }
     }
 
     /**
-     * Finds the path from top to bottom with the maximum total blueness.
+     * Finds the bluest seam in the image.
      *
-     * This method uses dynamic programming to find the "bluest" seam in the image.
-     * The blueness of a seam is defined as the sum of the blueness of all pixels in
-     * the seam.
+     * This method uses dynamic programming to find the seam with the maximum total blueness.
+     * It first initializes the first row of the dynamic programming table with the blueness of each pixel in the first row.
+     * Then, for each remaining row, it calculates the maximum total blueness that can be achieved by selecting a pixel in that row,
+     * given that the pixel in the previous row that was selected is either the pixel to the left, the pixel directly above, or the pixel to the right.
+     * It keeps track of the seam that achieves the maximum total blueness for each pixel.
+     * Finally, it returns the seam that achieves the maximum total blueness in the last row.
      *
-     * @return an array representing the bluest seam. Each element is the
-     *         x-coordinate of the pixel in the seam for the corresponding
-     *         y-coordinate.
+     * @return An ArrayList of Pixel objects representing the bluest seam in the image.
      */
     public ArrayList<Pixel> findBluestSeam() {
+        // Get the height of the image
         int height = firstColumn.size();
+        // Initialize an ArrayList to store the pixels in the bluest seam
         ArrayList<Pixel> seam = new ArrayList<>();
+        // Initialize an array to store the blueness values of the previous row of pixels
         int[] previousValues = new int[height];
+        // Initialize a 2D array to store the pixels in the bluest seam up to each pixel in the previous row
         Pixel[][] previousSeams = new Pixel[height][height];
-    
-        // Initialize the first row
+
+        // Initialize the first row of pixels
         Pixel pixel = firstColumn.get(0);
         int i = 0;
         while (pixel != null) {
+            // Set the blueness value of the current pixel in the previousValues array
             previousValues[i] = pixel.getBlueness();
+            // Set the current pixel as the bluest seam up to itself in the previousSeams array
             previousSeams[i][0] = pixel;
+            // Move to the next pixel in the row
             pixel = pixel.getRight();
             i++;
         }
-    
-        // Process the remaining rows
+
+        // Process the remaining rows of pixels
         for (int y = 1; y < height; y++) {
             pixel = firstColumn.get(y);
             int[] currentValues = new int[i];
             Pixel[][] currentSeams = new Pixel[i][height];
             int x = 0;
             while (pixel != null) {
+                // Calculate the maximum blueness value of the three pixels above the current pixel
                 int left = x > 0 ? previousValues[x - 1] : -1;
                 int middle = x < previousValues.length ? previousValues[x]: -1;
                 int right = x < i - 1 ? previousValues[x + 1] : -1;
                 int max = Math.max(Math.max(left, middle), right);
+                // Add the blueness value of the current pixel to the maximum blueness value
                 currentValues[x] = pixel.getBlueness() + max;
-    
-                // Update the seam for the current pixel
+
+                // Update the bluest seam up to the current pixel
                 if (max == left) {
                     System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
                 } else if (max == middle) {
@@ -312,52 +377,63 @@ public class Image {
                     System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
                 }
                 currentSeams[x][y] = pixel;
+                // Update the blueness value of the current pixel
                 pixel.setBlueness(currentValues[x]);
+                // Move to the next pixel in the row
                 pixel = pixel.getRight();
                 x++;
             }
-    
+
             // Prepare for the next row
             previousValues = currentValues;
             previousSeams = currentSeams;
         }
-    
-        // Find the bluest seam
+
+        // Find the bluest seam in the last row of pixels
         int maxIndex = indexOfLargest(previousValues);
         Pixel[] pixelSeam = previousSeams[maxIndex];
+        // Add the pixels in the bluest seam to the seam ArrayList
         seam.addAll(Arrays.asList(pixelSeam));
+        // Return the seam ArrayList
         return seam;
     }
 
     /**
-     * Finds the path from top to bottom with the minimum total energy.
+     * Finds the seam with the lowest total energy in the image.
      *
-     * This method uses dynamic programming to find the "lowest energy" seam in the
-     * image.
-     * The energy of a seam is defined as the sum of the energy of all pixels in the
-     * seam.
+     * This method uses dynamic programming to find the seam with the lowest total energy.
+     * It first initializes the first row of the dynamic programming table with the energy of each pixel in the first row.
+     * Then, for each remaining row, it calculates the minimum total energy that can be achieved by selecting a pixel in that row,
+     * given that the pixel in the previous row that was selected is either the pixel to the left, the pixel directly above, or the pixel to the right.
+     * It keeps track of the seam that achieves the minimum total energy for each pixel.
+     * Finally, it returns the seam that achieves the minimum total energy in the last row.
      *
-     * @return an array representing the lowest energy seam. Each element is the
-     *         x-coordinate of the pixel in the seam for the corresponding
-     *         y-coordinate.
+     * @return An ArrayList of Pixel objects representing the seam with the lowest total energy in the image.
      */
     public ArrayList<Pixel> findLowestEnergySeam() {
+        // Get the height of the image
         int height = firstColumn.size();
+        // Initialize an ArrayList to store the pixels in the lowest energy seam
         ArrayList<Pixel> seam = new ArrayList<>();
+        // Initialize an array to store the energy values of the previous row of pixels
         int[] previousValues = new int[height];
+        // Initialize a 2D array to store the pixels in the lowest energy seam up to each pixel in the previous row
         Pixel[][] previousSeams = new Pixel[height][height];
     
-        // Initialize the first row
+        // Initialize the first row of pixels
         Pixel pixel = firstColumn.get(0);
         int i = 0;
         while (pixel != null) {
+            // Set the energy value of the current pixel in the previousValues array
             previousValues[i] = pixel.getEnergy();
+            // Set the current pixel as the lowest energy seam up to itself in the previousSeams array
             previousSeams[i][0] = pixel;
+            // Move to the next pixel in the row
             pixel = pixel.getRight();
             i++;
         }
     
-        // Process the remaining rows
+        // Process the remaining rows of pixels
         for (int y = 1; y < height; y++) {
             pixel = firstColumn.get(y);
             int[] currentValues = new int[i];
@@ -378,6 +454,7 @@ public class Image {
                 }
                 currentValues[x] = minEnergy;
                 currentSeams[x][y] = pixel;
+                // Move to the next pixel in the row
                 pixel = pixel.getRight();
                 x++;
             }
@@ -387,10 +464,12 @@ public class Image {
             previousSeams = currentSeams;
         }
     
-        // Find the lowest energy seam
+        // Find the lowest energy seam in the last row of pixels
         int minIndex = indexOfSmallest(previousValues);
         Pixel[] pixelSeam = previousSeams[minIndex];
+        // Add the pixels in the lowest energy seam to the seam ArrayList
         seam.addAll(Arrays.asList(pixelSeam));
+        // Return the seam ArrayList
         return seam;
     }
 
@@ -401,8 +480,11 @@ public class Image {
      * @param color the color to use for highlighting the seam.
      */
     public void highlightSeam(ArrayList<Pixel> seam, Color color) {
+        // Loop over each pixel in the seam
         for (Pixel pixel : seam) {
+            // If the current pixel is not null
             if (pixel != null) {
+                // Set the color of the current pixel to the specified color
                 pixel.setColor(color);
             }
         }
@@ -414,17 +496,23 @@ public class Image {
      * @param seam an ArrayList of Pixel objects representing the seam to be removed.
      */
     public void removeSeam(ArrayList<Pixel> seam) {
+        // Initialize an ArrayList to store the pixels that will be removed
         ArrayList<Pixel> removedPixels = new ArrayList<>();
+        // Loop over each pixel in the seam
         for (Pixel pixel : seam) {
+            // If the current pixel is not null
             if (pixel != null) {
+                // Add the current pixel to the removedPixels ArrayList
                 removedPixels.add(pixel);
-                removePixelAt(pixel);
+                // Remove the current pixel from the image
+                removePixel(pixel);
             }
         }
+        // Decrease the width of the image by 1
         this.width--;
+        // Add the removedPixels ArrayList to the removedSeams ArrayList
         removedSeams.add(removedPixels);
     }
-
 
     /**
      * Inserts a given seam into the image.
@@ -432,94 +520,93 @@ public class Image {
      * @param seam an ArrayList of Pixel objects representing the seam to be inserted.
      */
     public void insertSeam(ArrayList<Pixel> seam) {
+        // Loop over each pixel in the seam
         for (int y = 0; y < seam.size(); y++) {
+            // Get the current pixel
             Pixel pixel = seam.get(y);
+            // If the current pixel is not null
             if (pixel != null) {
-                insertPixelAt(pixel);
+                // Insert the current pixel into the image
+                insertPixel(pixel);
             }
         }
+        // Increase the width of the image by 1
         this.width++;
+        // Remove the last seam from the removedSeams ArrayList
         removedSeams.remove(removedSeams.size() - 1);
     }
-
+    
     /**
-     * Gets the pixel at a specific x-coordinate.
+     * Inserts a pixel into the image.
      *
-     * This method starts at a given pixel and moves to the right until it finds the
-     * pixel with the specified x-coordinate.
+     * This method inserts a pixel into the image by updating the left and right neighbors of the pixel
+     * to point to the new pixel, effectively inserting the pixel into the linked list that represents the image.
+     * If the pixel being inserted is the first pixel in its row (i.e., it's in the firstColumn list),
+     * the method updates the firstColumn list to point to the new pixel.
      *
-     * @param start the pixel to start at
-     * @param x     the x-coordinate of the pixel to find
-     * @return the pixel at the specified x-coordinate
+     * @param pixel The pixel to be inserted. If the pixel is null, the method does nothing.
      */
-    private Pixel getPixelAt(Pixel start, int x) {
-        Pixel pixel = start;
-        while (pixel != null && pixel.getX() != x) {
-            pixel = pixel.getRight();
-        }
-        return pixel;
-    }
-
-    /**
-     * Inserts a pixel at the given position in the image.
-     *
-     * @param pixel the pixel in the column of the pixel to be inserted.
-     * @param x the x-coordinate of the position where the pixel will be inserted.
-     */
-    // public void insertPixelAt(Pixel pixel, int x) {
-    //     if (pixel != null) {
-    //         Pixel left = pixel.getLeft();
-    //         Pixel right = pixel.getRight();
-    //         pixel.setLeft(left);
-    //         pixel.setRight(right);
-    //         if (left != null) {
-    //             left.setRight(pixel);
-    //         }
-    //         if (right != null) {
-    //             right.setLeft(pixel);
-    //         }
-    //         if (pixel == firstColumn.get(pixel.getY())) {
-    //             firstColumn.set(pixel.getY(), pixel);
-    //         }
-    //         pixel.setColor(pixel.getInitialColor());
-    //     }
-    // }
-    public void insertPixelAt(Pixel pixel) {
+    public void insertPixel(Pixel pixel) {
+        // If the pixel to be inserted is not null
         if (pixel != null) {
+            // Get the pixel to the left of the current pixel
             Pixel left = pixel.getLeft();
+            // Get the pixel to the right of the current pixel
             Pixel right = pixel.getRight();
+            // Set the left pixel of the current pixel
             pixel.setLeft(left);
+            // Set the right pixel of the current pixel
             pixel.setRight(right);
+            // If there is a pixel to the left of the current pixel
             if (left != null) {
+                // Set the right pixel of the left pixel to the current pixel
                 left.setRight(pixel);
             }
+            // If there is a pixel to the right of the current pixel
             if (right != null) {
+                // Set the left pixel of the right pixel to the current pixel
                 right.setLeft(pixel);
             }
+            // If the right pixel is the first pixel in the column
             if (right == firstColumn.get(pixel.getY())) {
+                // Set the first pixel in the column to the current pixel
                 firstColumn.set(pixel.getY(), pixel);
             }
+            // Set the color of the current pixel to its initial color
             pixel.setColor(pixel.getInitialColor());
         }
     }
 
     /**
-     * Removes a pixel at the given position in the image.
+     * Removes a pixel from the image.
      *
-     * @param pixel the pixel in the column of the pixel to be removed.
-     * @param x the x-coordinate of the pixel to be removed.
+     * This method removes a pixel from the image by updating the left and right neighbors of the pixel
+     * to point to each other, effectively removing the pixel from the linked list that represents the image.
+     * If the pixel being removed is the first pixel in its row (i.e., it's in the firstColumn list),
+     * the method updates the firstColumn list to point to the right neighbor of the pixel.
+     *
+     * @param pixel The pixel to be removed. If the pixel is null, the method does nothing.
      */
-    public void removePixelAt(Pixel pixel) {
+    public void removePixel(Pixel pixel) {
+        // If the pixel to be removed is not null
         if (pixel != null) {
+            // Get the pixel to the left of the current pixel
             Pixel left = pixel.getLeft();
+            // Get the pixel to the right of the current pixel
             Pixel right = pixel.getRight();
+            // If there is a pixel to the left of the current pixel
             if (left != null) {
+                // Set the right pixel of the left pixel to the right pixel of the current pixel
                 left.setRight(right);
             }
+            // If there is a pixel to the right of the current pixel
             if (right != null) {
+                // Set the left pixel of the right pixel to the left pixel of the current pixel
                 right.setLeft(left);
             }
+            // If the current pixel is the first pixel in its column
             if (pixel == firstColumn.get(pixel.getY())) {
+                // Set the first pixel in the column to the right pixel of the current pixel
                 firstColumn.set(pixel.getY(), right);
             }
         }
@@ -532,9 +619,12 @@ public class Image {
      *         If no seams have been removed, this method returns null.
      */
     public ArrayList<Pixel> getLastRemovedSeam() {
+        // Check if the removedSeams list is empty
         if (removedSeams.isEmpty()) {
+            // If it is, return null
             return null;
         }
+        // Otherwise, return the last seam that was removed from the image
         return removedSeams.get(removedSeams.size() - 1);
     }
 
@@ -545,8 +635,11 @@ public class Image {
      * and finally calculates the blueness of each pixel using the imageCalculateBluenesses method.
      */
     public void updateValues() {
+        // Calculate the brightness of each pixel in the image
         imageCalculateBrightness();
+        // Calculate the energy of each pixel in the image
         imageCalculateEnergy();
+        // Calculate the blueness of each pixel in the image
         imageCalculateBluenesses();
     }
 
@@ -571,12 +664,17 @@ public class Image {
      * @return the index of the largest value in the array
      */
     public static int indexOfLargest(int[] array) {
+        // Initialize the index of the maximum value to 0
         int maxIndex = 0;
+        // Loop over each element in the array starting from the second element
         for (int i = 1; i < array.length; i++) {
+            // If the current element is greater than the maximum value
             if (array[i] > array[maxIndex]) {
+                // Update the index of the maximum value to the current index
                 maxIndex = i;
             }
         }
+        // Return the index of the maximum value
         return maxIndex;
     }
 
@@ -597,17 +695,25 @@ public class Image {
      *         empty
      */
     public static int indexOfSmallest(int[] array) {
-        // add this
+        // Check if the array is empty
         if (array.length == 0)
+            // If it is, return -1
             return -1;
+        // Initialize the index of the minimum value to 0
         int index = 0;
+        // Initialize the minimum value to the first element in the array
         int min = array[index];
+        // Loop over each element in the array starting from the second element
         for (int i = 1; i < array.length; i++) {
+            // If the current element is less than or equal to the minimum value
             if (array[i] <= min) {
+                // Update the minimum value to the current element
                 min = array[i];
+                // Update the index of the minimum value to the current index
                 index = i;
             }
         }
+        // Return the index of the minimum value
         return index;
     }
 
@@ -624,9 +730,12 @@ public class Image {
      * @param array the array to print
      */
     public void printArray(int[] array) {
+        // Loop over each element in the array
         for (int i = 0; i < array.length; i++) {
+            // Print the current element followed by a space
             System.out.print(array[i] + " ");
         }
+        // Print a newline
         System.out.println();
     }
 
@@ -643,10 +752,14 @@ public class Image {
      * @param array the 2D array to print
      */
     public void printArray(int[][] array) {
+        // Loop over each row in the array
         for (int i = 0; i < array.length; i++) {
+            // Loop over each column in the current row
             for (int j = 0; j < array[i].length; j++) {
+                // Print the current element followed by a space
                 System.out.print(array[i][j] + " ");
             }
+            // Print a newline to move to the next row
             System.out.println();
         }
     }
@@ -661,11 +774,15 @@ public class Image {
      * @param seam an ArrayList of Pixel objects representing the seam to be printed.
      */
     public void printSeam(ArrayList<Pixel> seam) {
+        // Loop over each pixel in the seam
         for (Pixel pixel : seam) {
+            // If the current pixel is not null
             if (pixel != null){
+                // Print the coordinates of the current pixel in the format (x,y)
                 System.out.print("(" + pixel.getX() + "," + pixel.getY() + ") ");
             }
         }
+        // Print a newline
         System.out.println();
     }
 }
