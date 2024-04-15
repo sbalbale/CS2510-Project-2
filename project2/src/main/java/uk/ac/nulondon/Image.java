@@ -176,24 +176,26 @@ public class Image {
      * The brightness of a pixel is defined as the average of its RGB values.
      * The energy is calculated as the square root of the sum of the squares of the
      * horizontal and vertical energies.
+     * 
+     * A B C
+     * D E F
+     * G H I
      *
      * @param pixelE the pixel for which to calculate the energy
      * @return the energy of the pixel
      */
-    public int calculateEnergy(Pixel pixelE) {
+    public int calculateEnergy(Pixel pixelE, Pixel pixelB, Pixel pixelH) {
         int x = pixelE.getX();
         int y = pixelE.getY();
-        int brE = pixelE.getBrightness();
-
-        Pixel pixelA = y > 0 && x > 0 ? getPixelAt(firstColumn.get(y - 1), x - 1) : pixelE;
-        Pixel pixelB = y > 0 ? getPixelAt(firstColumn.get(y - 1), x) : pixelE;
-        Pixel pixelC = y > 0 ? getPixelAt(firstColumn.get(y - 1), x + 1) : pixelE;
-        Pixel pixelD = x > 0 ? pixelE.getLeft() : pixelE;
-        Pixel pixelF = getPixelAt(pixelE, x + 1);
-        Pixel pixelG = y < firstColumn.size() - 1 && x > 0 ? getPixelAt(firstColumn.get(y + 1), x - 1) : pixelE;
-        Pixel pixelH = y < firstColumn.size() - 1 ? getPixelAt(firstColumn.get(y + 1), x) : pixelE;
-        Pixel pixelI = y < firstColumn.size() - 1 ? getPixelAt(firstColumn.get(y + 1), x + 1) : pixelE;
-
+        int brE = pixelE.getBrightness();      
+    
+        Pixel pixelA = y > 0 && x > 0 ? pixelB.getLeft() : null;
+        Pixel pixelC = y > 0 && x < width - 1 ? pixelB.getRight() : null;
+        Pixel pixelD = x > 0 ? pixelE.getLeft() : null;
+        Pixel pixelF = x < width - 1 ? pixelE.getRight() : null;
+        Pixel pixelG = y < height - 1 && x > 0 ? pixelH.getLeft() : null;
+        Pixel pixelI = y < height - 1 && x < width - 1 ? pixelH.getRight() : null;
+    
         int brA = pixelA != null ? pixelA.getBrightness() : brE;
         int brB = pixelB != null ? pixelB.getBrightness() : brE;
         int brC = pixelC != null ? pixelC.getBrightness() : brE;
@@ -202,10 +204,10 @@ public class Image {
         int brG = pixelG != null ? pixelG.getBrightness() : brE;
         int brH = pixelH != null ? pixelH.getBrightness() : brE;
         int brI = pixelI != null ? pixelI.getBrightness() : brE;
-
+    
         int horizEnergy = (brA + 2 * brD + brG) - (brC + 2 * brF + brI);
         int vertEnergy = (brA + 2 * brB + brC) - (brG + 2 * brH + brI);
-
+    
         return (int) Math.sqrt(horizEnergy * horizEnergy + vertEnergy * vertEnergy);
     }
 
@@ -215,9 +217,12 @@ public class Image {
      * on each Pixel.
      */
     public void imageCalculateEnergy() {
-        for (Pixel pixel : firstColumn) {
+        for (int i = 0; i < firstColumn.size(); i++) {
+            Pixel pixel = firstColumn.get(i);
             while (pixel != null) {
-                int energy = calculateEnergy(pixel);
+                Pixel pixelB = i > 0 ? firstColumn.get(i - 1) : null;
+                Pixel pixelH = i < firstColumn.size() - 1 ? firstColumn.get(i + 1) : null;
+                int energy = calculateEnergy(pixel, pixelB, pixelH);
                 pixel.setEnergy(energy);
                 pixel = pixel.getRight();
             }
@@ -268,8 +273,8 @@ public class Image {
      * @return an array representing the bluest seam. Each element is the
      *         x-coordinate of the pixel in the seam for the corresponding
      *         y-coordinate.
-     */
-    // public int[] findBluestSeam() {
+     */    
+    // public ArrayList<Pixel> findBluestSeam() {
     //     int height = firstColumn.size();
     //     int[] seam = new int[height];
     //     int[] previousValues = new int[height];
@@ -293,7 +298,7 @@ public class Image {
     //         int x = 0;
     //         while (pixel != null) {
     //             int left = x > 0 ? previousValues[x - 1] : -1;
-    //             int middle = previousValues[x];
+    //             int middle = x < previousValues.length ? previousValues[x]: -1;
     //             int right = x < i - 1 ? previousValues[x + 1] : -1;
     //             int max = Math.max(Math.max(left, middle), right);
     //             currentValues[x] = pixel.getBlueness() + max;
@@ -316,37 +321,44 @@ public class Image {
     //     // Find the bluest seam
     //     int maxIndex = indexOfLargest(previousValues);
     //     seam = previousSeams[maxIndex];
-    //     return seam;
+
+    //     ArrayList<Pixel> seamPixels = new ArrayList<>();
+    //     for (int y = 0; y < seam.length; y++) {
+    //         pixel = getPixelAt(firstColumn.get(y), seam[y]);
+    //         seamPixels.add(pixel);
+    //     }
+    //     return seamPixels;
     // }
-    
     public ArrayList<Pixel> findBluestSeam() {
         int height = firstColumn.size();
-        int[] seam = new int[height];
+        ArrayList<Pixel> seam = new ArrayList<>();
         int[] previousValues = new int[height];
-        int[][] previousSeams = new int[height][height];
-
+        Pixel[][] previousSeams = new Pixel[height][height];
+    
         // Initialize the first row
         Pixel pixel = firstColumn.get(0);
         int i = 0;
         while (pixel != null) {
             previousValues[i] = pixel.getBlueness();
-            previousSeams[i][0] = i;
+            previousSeams[i][0] = pixel;
             pixel = pixel.getRight();
             i++;
         }
-
+    
         // Process the remaining rows
         for (int y = 1; y < height; y++) {
             pixel = firstColumn.get(y);
             int[] currentValues = new int[i];
-            int[][] currentSeams = new int[i][height];
+            Pixel[][] currentSeams = new Pixel[i][height];
             int x = 0;
             while (pixel != null) {
                 int left = x > 0 ? previousValues[x - 1] : -1;
-                int middle = previousValues[x];
+                int middle = x < previousValues.length ? previousValues[x]: -1;
                 int right = x < i - 1 ? previousValues[x + 1] : -1;
                 int max = Math.max(Math.max(left, middle), right);
                 currentValues[x] = pixel.getBlueness() + max;
+    
+                // Update the seam for the current pixel
                 if (max == left) {
                     System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
                 } else if (max == middle) {
@@ -354,27 +366,23 @@ public class Image {
                 } else {
                     System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
                 }
-                currentSeams[x][y] = x;
+                currentSeams[x][y] = pixel;
                 pixel.setBlueness(currentValues[x]);
                 pixel = pixel.getRight();
                 x++;
             }
+    
+            // Prepare for the next row
             previousValues = currentValues;
             previousSeams = currentSeams;
         }
-
+    
         // Find the bluest seam
         int maxIndex = indexOfLargest(previousValues);
-        seam = previousSeams[maxIndex];
-
-        ArrayList<Pixel> seamPixels = new ArrayList<>();
-        for (int y = 0; y < seam.length; y++) {
-            pixel = getPixelAt(firstColumn.get(y), seam[y]);
-            seamPixels.add(pixel);
-        }
-        return seamPixels;
+        Pixel[] pixelSeam = previousSeams[maxIndex];
+        seam.addAll(Arrays.asList(pixelSeam));
+        return seam;
     }
-    
 
     /**
      * Finds the path from top to bottom with the minimum total energy.
@@ -388,7 +396,62 @@ public class Image {
      *         x-coordinate of the pixel in the seam for the corresponding
      *         y-coordinate.
      */
-    // public int[] findLowstEnergySeam() {
+    public ArrayList<Pixel> findLowestEnergySeam() {
+        int height = firstColumn.size();
+        ArrayList<Pixel> seam = new ArrayList<>();
+        int[] previousValues = new int[height];
+        Pixel[][] previousSeams = new Pixel[height][height];
+    
+        // Initialize the first row
+        Pixel pixel = firstColumn.get(0);
+        int i = 0;
+        while (pixel != null) {
+            previousValues[i] = pixel.getEnergy();
+            previousSeams[i][0] = pixel;
+            pixel = pixel.getRight();
+            i++;
+        }
+    
+        // Process the remaining rows
+        for (int y = 1; y < height; y++) {
+            pixel = firstColumn.get(y);
+            int[] currentValues = new int[i];
+            Pixel[][] currentSeams = new Pixel[i][height];
+            int x = 0;
+            while (pixel != null) {
+                int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
+                int middle = x < previousValues.length ? previousValues[x]: Integer.MAX_VALUE;
+                int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
+                int min = Math.min(Math.min(left, middle), right);
+                currentValues[x] = pixel.getEnergy() + min;
+    
+                // Update the seam for the current pixel
+                if (min == left) {
+                    System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
+                } else if (min == middle) {
+                    System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
+                } else {
+                    System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
+                }
+                currentSeams[x][y] = pixel;
+                pixel.setEnergy(currentValues[x]);
+                pixel = pixel.getRight();
+                x++;
+            }
+    
+            // Prepare for the next row
+            previousValues = currentValues;
+            previousSeams = currentSeams;
+        }
+    
+        // Find the lowest energy seam
+        int minIndex = indexOfSmallest(previousValues);
+        Pixel[] pixelSeam = previousSeams[minIndex];
+        seam.addAll(Arrays.asList(pixelSeam));
+        return seam;
+    }
+
+    // public ArrayList<Pixel> findLowestEnergySeam() {
     //     int height = firstColumn.size();
     //     int[] seam = new int[height];
     //     int[] previousValues = new int[height];
@@ -412,7 +475,7 @@ public class Image {
     //         int x = 0;
     //         while (pixel != null) {
     //             int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
-    //             int middle = previousValues[x];
+    //             int middle = x < previousValues.length ? previousValues[x]: Integer.MAX_VALUE;
     //             int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
     //             int min = Math.min(Math.min(left, middle), right);
     //             currentValues[x] = pixel.getEnergy() + min;
@@ -440,68 +503,13 @@ public class Image {
     //     int minIndex = indexOfSmallest(previousValues);
     //     seam = previousSeams[minIndex];
 
-    //     return seam;
+    //     ArrayList<Pixel> seamPixels = new ArrayList<>();
+    //     for (int y = 0; y < seam.length; y++) {
+    //         pixel = getPixelAt(firstColumn.get(y), seam[y]);
+    //         seamPixels.add(pixel);
+    //     }
+    //     return seamPixels;
     // }
-
-    public ArrayList<Pixel> findLowestEnergySeam() {
-        int height = firstColumn.size();
-        int[] seam = new int[height];
-        int[] previousValues = new int[height];
-        int[][] previousSeams = new int[height][height];
-
-        // Initialize the first row
-        Pixel pixel = firstColumn.get(0);
-        int i = 0;
-        while (pixel != null) {
-            previousValues[i] = pixel.getEnergy();
-            previousSeams[i][0] = i;
-            pixel = pixel.getRight();
-            i++;
-        }
-
-        // Process the remaining rows
-        for (int y = 1; y < height; y++) {
-            pixel = firstColumn.get(y);
-            int[] currentValues = new int[i];
-            int[][] currentSeams = new int[i][height];
-            int x = 0;
-            while (pixel != null) {
-                int left = x > 0 ? previousValues[x - 1] : Integer.MAX_VALUE;
-                int middle = previousValues[x];
-                int right = x < i - 1 ? previousValues[x + 1] : Integer.MAX_VALUE;
-                int min = Math.min(Math.min(left, middle), right);
-                currentValues[x] = pixel.getEnergy() + min;
-
-                // Update the seam for the current pixel
-                if (min == left) {
-                    System.arraycopy(previousSeams[x - 1], 0, currentSeams[x], 0, y);
-                } else if (min == middle) {
-                    System.arraycopy(previousSeams[x], 0, currentSeams[x], 0, y);
-                } else {
-                    System.arraycopy(previousSeams[x + 1], 0, currentSeams[x], 0, y);
-                }
-                currentSeams[x][y] = x;
-                pixel.setEnergy(currentValues[x]);
-                pixel = pixel.getRight();
-                x++;
-            }
-
-            // Prepare for the next row
-            previousValues = currentValues;
-            previousSeams = currentSeams;
-        }
-
-        // Find the lowest energy seam
-        int minIndex = indexOfSmallest(previousValues);
-        seam = previousSeams[minIndex];
-
-        ArrayList<Pixel> seamPixels = new ArrayList<>();
-        for (int y = 0; y < seam.length; y++) {
-            pixel = getPixelAt(firstColumn.get(y), seam[y]);
-            seamPixels.add(pixel);
-        }
-        return seamPixels;
-    }
 
     
     
