@@ -120,7 +120,7 @@ public class ImageEditor {
                     // Print the bluest seam to the console
                     // image.printSeam(highlightedSeam);
                     // Print a message to the console
-                    System.out.println("Bluest seam found. Press 'd' to delete the seam.");
+                    System.out.println("Bluest seam found. Press 'd' to delete the seam. Press anything else to cancel.");
                     break;
                 case "e":
                     // If there is a currently highlighted seam, undo the highlighting
@@ -137,7 +137,7 @@ public class ImageEditor {
                     // Print the seam with the lowest energy to the console
                     // image.printSeam(highlightedSeam);
                     // Print a message to the console
-                    System.out.println("Lowest energy seam found. Press 'd' to delete the seam.");
+                    System.out.println("Lowest energy seam found. Press 'd' to delete the seam. Press anything else to cancel.");
                     break;
                 case "d":
                     // If there is a currently highlighted seam, delete it
@@ -188,8 +188,15 @@ public class ImageEditor {
                     // If the user's command is not recognized, print a message to the console
                     if (highlightedSeam != null) {
                         undoHighlightedSeam();
+                        System.out.println("Cancelled seam selection");
+                        // Export the image to a temporary file
+                        image.exportImage("tempIMG_" + tempImgCount);
+                        // Increment the counter for the temporary images
+                        tempImgCount++;
                     }
-                    System.out.println("Invalid command. Please enter a valid command.");
+                    else {
+                        System.out.println("Invalid command. Please enter a valid command.");
+                    }
                     break;
             }
         }
