@@ -1,5 +1,7 @@
 package uk.ac.nulondon;
 
+import java.util.Scanner;
+
 public class Main {
     /**
      * The main entry point for the application.
@@ -14,14 +16,22 @@ public class Main {
     public static void main(String[] args) {
         // Use a try-catch block to handle any exceptions that may occur
         try {
-            // Create a new Image object from the specified file
-            Image image = new Image("project2\\src\\main\\resources\\SampleImages\\beach.png");
+            // Create a new Scanner object for reading input
+            Scanner scanner = new Scanner(System.in);
+            // Prompt the user to enter the path of the image they would like to edit
+            System.out.println("Enter the path of the image you would like to edit: ");
+            // Read the image path from the user
+            String path = scanner.nextLine();
+            // Create a new Image object with the provided path
+            Image image = new Image(path);
             // Create a new ImageEditor object with the created Image object
             ImageEditor imageEditor = new ImageEditor(image);
             // Start the image editor
             imageEditor.startEditor();
             // Print the image to the console
-            image.printImage();
+            // image.printImage();
+            // Close the scanner
+            scanner.close();
 
         // Catch any exceptions that occur and print the stack trace
         } catch (Exception e) {

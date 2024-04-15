@@ -134,7 +134,8 @@ public class Image {
                 }
             }
             // Create a new File object for the output file
-            File output = new File("project2\\Output\\" + outputFilePath + ".png");
+            File output = new File(filePath.split("src")[0] + "Output\\" + outputFilePath + ".png");
+
             // Write the new image to the output file
             ImageIO.write(newImage, "png", output);
         // Catch any IOExceptions that occur and print the stack trace

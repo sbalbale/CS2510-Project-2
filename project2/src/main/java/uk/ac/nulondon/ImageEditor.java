@@ -1,13 +1,8 @@
 package uk.ac.nulondon;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Scanner;
-
-import javax.rmi.ssl.SslRMIClientSocketFactory;
-
 import java.awt.Color;
-import java.lang.reflect.Array;
 
 /**
  * The ImageEditor class provides a user interface for editing an image.
@@ -63,6 +58,7 @@ public class ImageEditor {
         highlightedSeam = null;
         // If there is a last removed seam in the image, set the last removed seam to null
         lastRemovedSeam = image.getLastRemovedSeam() == null ? null : image.getLastRemovedSeam();
+        image.updateValues();
     }
 
     /**
