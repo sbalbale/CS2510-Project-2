@@ -28,8 +28,6 @@ public class Main {
             ImageEditor imageEditor = new ImageEditor(image);
             // Start the image editor
             imageEditor.startEditor();
-            // Print the image to the console
-            // image.printImage();
             // Close the scanner
             scanner.close();
 

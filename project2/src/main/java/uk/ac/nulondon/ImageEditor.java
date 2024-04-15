@@ -88,8 +88,6 @@ public class ImageEditor {
         while (true) {
             // Update the energy and blueness values of the pixels in the image
             image.updateValues();
-            // Print the image to the console
-            // image.printImage();
             // Print a separator line
             System.out.println("---------------------------------");
             // Print the command menu
@@ -117,8 +115,6 @@ public class ImageEditor {
                     image.exportImage("tempIMG_" + tempImgCount);
                     // Increment the counter for the temporary images
                     tempImgCount++;
-                    // Print the bluest seam to the console
-                    // image.printSeam(highlightedSeam);
                     // Print a message to the console
                     System.out.println("Bluest seam found. Press 'd' to delete the seam. Press anything else to cancel.");
                     break;
@@ -134,8 +130,6 @@ public class ImageEditor {
                     image.exportImage("tempIMG_" + tempImgCount);
                     // Increment the counter for the temporary images
                     tempImgCount++;
-                    // Print the seam with the lowest energy to the console
-                    // image.printSeam(highlightedSeam);
                     // Print a message to the console
                     System.out.println("Lowest energy seam found. Press 'd' to delete the seam. Press anything else to cancel.");
                     break;

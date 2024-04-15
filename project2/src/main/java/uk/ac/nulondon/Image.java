@@ -125,8 +125,6 @@ public class Image {
                 Pixel pixel = firstColumn.get(row);
                 // Loop over each column of pixels in the image
                 for (int col = 0; col < this.width; col++) {
-                    // Print the row, column, and color of the current pixel to the console
-                    // System.out.println("Row: " + row + " Col: " + col + " Color: " + pixel);
                     // Set the color of the current pixel in the new image
                     newImage.setRGB(col, row, pixel.getColor().getRGB());
                     // Move to the next pixel in the row
