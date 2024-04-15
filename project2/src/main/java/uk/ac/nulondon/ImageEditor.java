@@ -161,7 +161,7 @@ public class ImageEditor {
                     }
                     // If there is a last removed seam, undo the removal
                     if (lastRemovedSeam != null) {
-                        image.printSeam(lastRemovedSeam);
+//                        image.printSeam(lastRemovedSeam);
                         image.insertSeam(lastRemovedSeam);
                         lastRemovedSeam = image.getLastRemovedSeam() == null ? null : image.getLastRemovedSeam();
                         // Export the image to a temporary file
