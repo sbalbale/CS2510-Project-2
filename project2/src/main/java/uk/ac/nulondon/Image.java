@@ -438,6 +438,7 @@ public class Image {
             }
         }
         this.width++;
+        removedSeams.remove(removedSeams.size() - 1);
     }
 
     /**
@@ -465,25 +466,19 @@ public class Image {
      * @param x the x-coordinate of the position where the pixel will be inserted.
      */
     public void insertPixelAt(Pixel pixel, int x) {
-        Pixel target = getPixelAt(pixel, x);
-        if (target != null) {
-            Pixel left = target.getLeft();
-            Pixel right = target.getRight();
+        if (pixel != null) {
+            Pixel left = pixel.getLeft();
+            Pixel right = pixel.getRight();
             pixel.setLeft(left);
-            pixel.setRight(target);
+            pixel.setRight(right);
             if (left != null) {
                 left.setRight(pixel);
             }
-            target.setLeft(pixel);
             if (x == 0) {
                 firstColumn.set(pixel.getY(), pixel);
             }
             if (right != null) {
                 right.setLeft(pixel);
-            }
-            pixel.setRight(right);
-            if (x == width - 1) {
-                pixel.setRight(null);
             }
             pixel.setColor(pixel.getInitialColor());
         }
@@ -496,10 +491,9 @@ public class Image {
      * @param x the x-coordinate of the pixel to be removed.
      */
     public void removePixelAt(Pixel pixel, int x) {
-        Pixel target = getPixelAt(pixel, x);
-        if (target != null) {
-            Pixel left = target.getLeft();
-            Pixel right = target.getRight();
+        if (pixel != null) {
+            Pixel left = pixel.getLeft();
+            Pixel right = pixel.getRight();
             if (left != null && x != 0) {
                 left.setRight(right);
             }
@@ -507,7 +501,7 @@ public class Image {
                 right.setLeft(left);
             }
             if (x == 0 && right != null) {
-                firstColumn.set(target.getY(), right);
+                firstColumn.set(pixel.getY(), right);
             }
         }
     }
@@ -519,7 +513,22 @@ public class Image {
      *         If no seams have been removed, this method returns null.
      */
     public ArrayList<Pixel> getLastRemovedSeam() {
+        if (removedSeams.isEmpty()) {
+            return null;
+        }
         return removedSeams.get(removedSeams.size() - 1);
+    }
+
+    /**
+     * Updates the values of brightness, energy, and blueness for each pixel in the image.
+     * It first calculates the brightness of each pixel using the imageCalculateBrightness method,
+     * then calculates the energy of each pixel using the imageCalculateEnergy method,
+     * and finally calculates the blueness of each pixel using the imageCalculateBluenesses method.
+     */
+    public void updateValues() {
+        imageCalculateBrightness();
+        imageCalculateEnergy();
+        imageCalculateBluenesses();
     }
 
     /**
