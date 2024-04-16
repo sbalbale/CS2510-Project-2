@@ -524,7 +524,7 @@ public class Image {
         // Increase the width of the image by 1
         this.width++;
         // Remove the last seam from the removedSeams ArrayList
-        removedSeams.remove(removedSeams.size() - 1);
+        removedSeams.removeLast();
     }
     
     /**
@@ -616,7 +616,7 @@ public class Image {
             return null;
         }
         // Otherwise, return the last seam that was removed from the image
-        return removedSeams.get(removedSeams.size() - 1);
+        return removedSeams.getLast();
     }
 
     /**
