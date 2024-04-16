@@ -20,12 +20,6 @@ public class Image {
     private String filePath = "";
 
     /**
-     * This field stores the output file path for the new image.
-     * By default, it is set to "newImg", meaning the new image will be saved as "newImg" in the project directory.
-     */
-    private String outputFilePath = "newImg";
-
-    /**
      * The width of the image.
      */
     private int width;
@@ -114,8 +108,6 @@ public class Image {
      * @param outputFilePath The path where the output image will be saved.
      */
     public void exportImage(String outputFilePath) {
-        // Set the output file path for the image
-        this.outputFilePath = outputFilePath;
         // Create a new BufferedImage object with the width and height of the image
         BufferedImage newImage = new BufferedImage(this.width, this.height, BufferedImage.TYPE_INT_RGB);
         try {
@@ -640,28 +632,6 @@ public class Image {
         imageCalculateEnergy();
         // Calculate the blueness of each pixel in the image
         imageCalculateBluenesses();
-    }
-
-    /**
-     * This method is used to get the path of the output file.
-     * The output file is where the edited image will be saved.
-     *
-     * @return A string representing the path of the output file.
-     */
-    public String getOutputFilePath() {
-        // Return the path where the output file should be saved
-        return outputFilePath;
-    }
-    
-    /**
-     * This method is used to set the path of the output file.
-     * The output file is where the edited image will be saved.
-     *
-     * @param outputFilePath A string representing the new path of the output file.
-     */
-    public void setOutputFilePath(String outputFilePath) {
-        // Set the path where the output file should be saved
-        this.outputFilePath = outputFilePath;
     }
 
     /**
