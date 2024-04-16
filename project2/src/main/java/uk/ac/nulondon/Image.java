@@ -17,13 +17,13 @@ public class Image {
     /**
      * The file path of the image.
      */
-    public String filePath = "";
+    private String filePath = "";
 
     /**
      * This field stores the output file path for the new image.
      * By default, it is set to "newImg", meaning the new image will be saved as "newImg" in the project directory.
      */
-    public String outputFilePath = "newImg";
+    private String outputFilePath = "newImg";
 
     /**
      * The width of the image.
@@ -174,7 +174,7 @@ public class Image {
      * @param pixel The Pixel whose brightness is to be calculated.
      * @return The calculated brightness.
      */
-    public int calculateBrightness(Pixel pixel) {
+    private int calculateBrightness(Pixel pixel) {
         // Get the red component of the pixel's color
         int r = pixel.getColor().getRed();
         // Get the green component of the pixel's color
@@ -218,7 +218,7 @@ public class Image {
      * @param pixelH The pixel below the current pixel.
      * @return The energy of the current pixel, calculated as the square root of the sum of the squares of the horizontal and vertical energy.
      */
-    public int calculateEnergy(Pixel pixelE, Pixel pixelB, Pixel pixelH) {
+    private int calculateEnergy(Pixel pixelE, Pixel pixelB, Pixel pixelH) {
         // Get the x and y coordinates and the brightness of the current pixel
         int x = pixelE.getX();
         int y = pixelE.getY();
@@ -286,7 +286,7 @@ public class Image {
      * @param pixel the pixel for which to calculate the blueness
      * @return the blueness of the pixel
      */
-    public int calculateBlueness(Pixel pixel) {
+    private int calculateBlueness(Pixel pixel) {
         // Get the blue component of the pixel's color
         int blueness = pixel.getColor().getBlue();
         // Return the blue component
@@ -545,7 +545,7 @@ public class Image {
      *
      * @param pixel The pixel to be inserted. If the pixel is null, the method does nothing.
      */
-    public void insertPixel(Pixel pixel) {
+    private void insertPixel(Pixel pixel) {
         // If the pixel to be inserted is not null
         if (pixel != null) {
             // Get the pixel to the left of the current pixel
@@ -586,7 +586,7 @@ public class Image {
      *
      * @param pixel The pixel to be removed. If the pixel is null, the method does nothing.
      */
-    public void removePixel(Pixel pixel) {
+    private void removePixel(Pixel pixel) {
         // If the pixel to be removed is not null
         if (pixel != null) {
             // Get the pixel to the left of the current pixel
@@ -643,6 +643,28 @@ public class Image {
     }
 
     /**
+     * This method is used to get the path of the output file.
+     * The output file is where the edited image will be saved.
+     *
+     * @return A string representing the path of the output file.
+     */
+    public String getOutputFilePath() {
+        // Return the path where the output file should be saved
+        return outputFilePath;
+    }
+    
+    /**
+     * This method is used to set the path of the output file.
+     * The output file is where the edited image will be saved.
+     *
+     * @param outputFilePath A string representing the new path of the output file.
+     */
+    public void setOutputFilePath(String outputFilePath) {
+        // Set the path where the output file should be saved
+        this.outputFilePath = outputFilePath;
+    }
+
+    /**
      * UTILITY FUNCTIONS
      * THESE FUNCTIONS ARE USED TO HELP IMPLEMENT AND BUG FIX THE MAIN FUNCTIONS
      * 
@@ -662,7 +684,7 @@ public class Image {
      * @param array the array to search
      * @return the index of the largest value in the array
      */
-    public static int indexOfLargest(int[] array) {
+    private static int indexOfLargest(int[] array) {
         // Initialize the index of the maximum value to 0
         int maxIndex = 0;
         // Loop over each element in the array starting from the second element
@@ -693,7 +715,7 @@ public class Image {
      * @return the index of the smallest value in the array, or -1 if the array is
      *         empty
      */
-    public static int indexOfSmallest(int[] array) {
+    private static int indexOfSmallest(int[] array) {
         // Check if the array is empty
         if (array.length == 0)
             // If it is, return -1

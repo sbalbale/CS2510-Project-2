@@ -58,6 +58,7 @@ public class ImageEditor {
         highlightedSeam = null;
         // If there is a last removed seam in the image, set the last removed seam to null
         lastRemovedSeam = image.getLastRemovedSeam() == null ? null : image.getLastRemovedSeam();
+        // Update the values of the image
         image.updateValues();
     }
 
